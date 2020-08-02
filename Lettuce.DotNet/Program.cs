@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using ElectronCgi.DotNet;
 
 namespace Lettuce.DotNet
