@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Threading.Tasks;
 using LettuceIo.Dotnet.Core;
 using Newtonsoft.Json.Linq;
 using RabbitMQ.Client;
@@ -12,10 +11,8 @@ namespace LettuceIo.Dotnet.Base.Actions
         private readonly IModel _channel;
         private readonly ILimiter _limiter;
         public string Id { get; set; }
-        public Action<object> OnStatus {  get; set; } = _ => { };
+        public IObservable<ActionStats> Stats { get; set; }
         
-        public ActionStats Stats = new ActionStats();
-
         public Record(JToken settings)
         {
             _channel = settings.Value<ConnectionFactory>().CreateConnection().CreateModel();

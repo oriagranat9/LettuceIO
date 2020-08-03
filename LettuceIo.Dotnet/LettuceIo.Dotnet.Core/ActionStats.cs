@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace LettuceIo.Dotnet.Base
+namespace LettuceIo.Dotnet.Core
 {
     public struct ActionStats
     {
