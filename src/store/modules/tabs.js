@@ -1,4 +1,5 @@
 import {getTemplate} from "./rabbitDetails";
+
 export default {
     state: {
         tabs: [],
@@ -19,9 +20,12 @@ export default {
         },
         createTab(state) {
             state.tabs.push(getTemplate());
+        },
+        setTabValue(state, {key, value}) {
+            state.tabs[state.selectedTabIndex][key] = value
         }
     },
-    getters:{
+    getters: {
         getTabIndex(state) {
             return state.selectedTabIndex
         },

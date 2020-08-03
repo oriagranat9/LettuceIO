@@ -5,6 +5,7 @@ import {ipcRenderer} from 'electron'
 import {BootstrapVue, IconsPlugin} from 'bootstrap-vue'
 import 'bootstrap/dist/css/bootstrap.css'
 import 'bootstrap-vue/dist/bootstrap-vue.css'
+import '@/assets/lettuceCss.css'
 
 Vue.prototype.$ipc = ipcRenderer;
 Vue.config.productionTip = false;

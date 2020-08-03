@@ -1,0 +1,53 @@
+.lettuce-input {
+    background-color: var(--bg-secondary);
+    border-color: var(--brand-primary);
+}
+
+.lettuce-input:focus {
+    background-color: #3c3c3c;
+    outline: var(--brand-primary) auto 1px;
+    border-color: var(--border-color);
+    box-shadow: 0 0 0 0.2em var(--shadow-color);
+}
+
+.lettuce-button {
+    background-color: var(--brand-primary);
+    border-color: var(--border-color);
+}
+
+.lettuce-button:hover {
+    background-color: var(--brand-secondary);
+    border-color: var(--border-secondary-color);
+}
+
+.lettuce-button:focus {
+    background-color: var(--brand-primary);
+    border-color: var(--border-secondary-color);
+    box-shadow: 0 0 0 0.2em var(--shadow-color);
+}
+
+.lettuce-button:not(:disabled):not(.disabled):active {
+    background-color: var(--brand-primary);
+    border-color: var(--border-secondary-color) !important;
+    box-shadow: 0 0 0.2em var(--shadow-color);
+}
+
+
+.custom-control-input-green:focus ~ .custom-control-label::before {
+    border-color: var(--border-color) !important;
+    box-shadow: 0 0 0.2em var(--shadow-color);
+}
+
+.custom-control-input-green:checked ~ .custom-control-label::before {
+    border-color: var(--border-secondary-color) !important;
+}
+
+.custom-control-input-green:not(:disabled):active ~ .custom-control-label::before {
+    background-color: var(--brand-primary);
+    border-color: var(--border-secondary-color);
+}
+
+.custom-control-input-green ~ .custom-control-label::before {
+    background-color: var(--bg-primary) !important;
+    border-color: var(--brand-secondary) !important;
+}

@@ -2,16 +2,19 @@
     <div class="contents">
         <div class="content">
             <Tabs/>
+            <ActionWindow/>
         </div>
     </div>
 </template>
 
 <script>
     import Tabs from "../components/Main/Tabs";
+    import ActionWindow from "../components/Main/ActionWindow";
     export default {
         name: "MainView",
         components:{
-            Tabs
+            Tabs,
+            ActionWindow
         }
     }
 </script>

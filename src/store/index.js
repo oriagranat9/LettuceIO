@@ -6,7 +6,8 @@ import tabs from "./modules/tabs";
 
 export default new Vuex.Store({
 
-    state: {},
+    state: {
+    },
     mutations: {},
     actions: {},
     modules: {
