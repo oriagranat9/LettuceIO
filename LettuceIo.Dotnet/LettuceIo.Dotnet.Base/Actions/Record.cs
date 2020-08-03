@@ -5,12 +5,8 @@ namespace LettuceIo.Dotnet.Base.Actions
 {
     public class Record : IAction
     {
-        public string ID { get; set; }
-        public event Action<object> Updates;
-        public bool IsRunning()
-        {
-            throw new NotImplementedException();
-        }
+        public string Id { get; set; }
+        public Action<object> OnStatus { get; set; }
 
         public void Start()
         {

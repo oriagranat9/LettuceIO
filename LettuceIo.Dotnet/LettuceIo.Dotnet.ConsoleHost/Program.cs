@@ -1,5 +1,4 @@
-﻿using System;
-using System.Collections.Concurrent;
+﻿using System.Collections.Concurrent;
 using ElectronCgi.DotNet;
 using LettuceIo.Dotnet.Base;
 using LettuceIo.Dotnet.Core;
@@ -9,20 +8,33 @@ namespace LettuceIo.Dotnet.ConsoleHost
 {
     internal static class Program
     {
-        private static ConcurrentDictionary<string, IAction> _activeActions = new ConcurrentDictionary<string, IAction>();
+        private static readonly ConcurrentDictionary<string, IAction> ActiveActions = new ConcurrentDictionary<string, IAction>();
+        private static readonly Connection Connection = new ConnectionBuilder().WithLogging().Build();
         
         private static void Main()
         {
-            var connection = new ConnectionBuilder().WithLogging().Build();
-            connection.On<JObject>("NewAction", NewAction);
-            connection.Listen();
+            Connection.On<JToken, string>("NewAction",NewAction);
+            Connection.On<string, string>("TerminateAction", TerminateAction);
+            Connection.Listen();
         }
-
-        private static JObject NewAction(JObject settings)
+        private static string NewAction(JToken settings)
         {
             var builder = new ActionBuilder().FromSettings(settings);
             var action = builder.Build();
-            _activeActions.TryAdd(action.ID,action);
+            var added = ActiveActions.TryAdd(action.Id, action);
+            if (added)
+            {
+                action.OnStatus = status => Connection.Send(action.Id, status);
+                action.Start();
+            }
+            return added ? "" : "Failed adding action to dictionary";
+        }
+
+        private static string TerminateAction(string id)
+        {
+            var removed = ActiveActions.TryGetValue(id, out var action);
+            if (removed) action.Stop();
+            return removed ? "" : "Failed removing action from dictionary";
         }
     }
 }

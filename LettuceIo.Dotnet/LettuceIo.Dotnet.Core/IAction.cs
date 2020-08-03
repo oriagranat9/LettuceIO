@@ -4,9 +4,8 @@ namespace LettuceIo.Dotnet.Core
 {
     public interface IAction
     {
-        public string ID { get; set; }
-        public event Action<object> Updates;
-        public bool IsRunning();
+        public string Id { get; set; }
+        public Action<object> OnStatus { get; set; }
         public void Start();
         public void Stop();
     }

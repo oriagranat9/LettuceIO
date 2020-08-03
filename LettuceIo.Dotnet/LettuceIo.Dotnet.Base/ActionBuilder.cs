@@ -10,7 +10,7 @@ namespace LettuceIo.Dotnet.Base
         public string ActionType { get; set; }
         public object ConnectionDetails { get; set; }
         
-        public ActionBuilder FromSettings(JObject settings)
+        public ActionBuilder FromSettings(JToken settings)
         {
             ActionType = settings.Value<string>("ActionType");
             return this;
