@@ -7,8 +7,13 @@
 
     <ItemGroup>
       <PackageReference Include="ElectronCgi.DotNet" Version="1.0.3" />
+      <PackageReference Include="Newtonsoft.Json" Version="12.0.3" />
       <PackageReference Include="Newtonsoft.Json.Bson" Version="1.0.2" />
       <PackageReference Include="RabbitMQ.Client" Version="6.2.0-rc.1" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <ProjectReference Include="..\LettuceIo.Dotnet.Base\LettuceIo.Dotnet.Base.csproj" />
     </ItemGroup>
 
 </Project>
