@@ -1,7 +1,7 @@
 import {ConnectionBuilder} from 'electron-cgi'
 import {ipcMain} from 'electron'
 
-var cgi = undefined;
+let cgi = undefined;
 
 export default function (isDevelopment) {
     let b = new ConnectionBuilder();
