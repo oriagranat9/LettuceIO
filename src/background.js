@@ -18,10 +18,14 @@ protocol.registerSchemesAsPrivileged([
 function createWindow() {
     // Create the browser window.
     win = new BrowserWindow({
-        width: 1200,
-        height: 600,
+        width: 1300,
+        height: 620,
+        minHeight: 620,
+        minWidth: 1280,
         title: "Lettuce.IO",
+        darkTheme: true,
         webPreferences: {
+            enableRemoteModule: true,
             // Use pluginOptions.nodeIntegration, leave this alone
             // See nklayman.github.io/vue-cli-plugin-electron-builder/guide/security.html#node-integration for more info
             nodeIntegration: process.env.ELECTRON_NODE_INTEGRATION

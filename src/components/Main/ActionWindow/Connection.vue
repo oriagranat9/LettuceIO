@@ -3,13 +3,13 @@
         <div class="form-inline form-margins">
             <div class="form-group span">
                 <div class="row span justify-content-start">
-                    <div class="col-lg-1">
+                    <div class="col-lg-2 " style="margin-top: 5px">
                         <select-input v-model="actionType" text="Action Type" :options="options"/>
                         <checkbox-input text="Advanced" v-model="showAdvanced"/>
                     </div>
                     <div class="col-lg-6">
                         <div class="row">
-                            <div class="col-lg-10">
+                            <div class="col-lg-10" style="margin-top: 5px">
                                 <text-input v-model="connectionString" text="Connection String"
                                             @blur="parseConnectionString"
                                             @focus="constructConnectionString"/>
@@ -19,7 +19,7 @@
                             </div>
                         </div>
                         <div class="row" v-if="showAdvanced">
-                            <div class="col-lg-10">
+                            <div class="col-lg-10"  style="margin-top: 5px">
                                 <text-input v-model="connectionDetails.amqpHostName" text="AMQP Hostname"/>
                             </div>
                             <div class="col-md-2">

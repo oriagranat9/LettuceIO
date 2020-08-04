@@ -8,7 +8,7 @@
 
 <script>
     import Connection from "./ActionWindow/Connection";
-    import Settings from "./Settings";
+    import Settings from "./ActionWindow/Settings";
     import Record from "./ActionWindow/Actions/Record";
     import Publish from "./ActionWindow/Actions/Publish";
 
