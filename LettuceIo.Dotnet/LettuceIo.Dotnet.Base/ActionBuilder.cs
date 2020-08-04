@@ -9,6 +9,7 @@ namespace LettuceIo.Dotnet.Base
     {
         public string ActionType { get; set; }
         public object ConnectionDetails { get; set; }
+        //public JToken Setting { get; set; }
         
         public ActionBuilder FromSettings(JToken settings)
         {
@@ -19,7 +20,7 @@ namespace LettuceIo.Dotnet.Base
         public IAction Build()
         {
             if(ActionType == "Record")
-                return new Record();
+                return new Record(new JObject());
             throw new ArgumentException($"No such actionType: {ActionType}",nameof(ActionType));
         }
     }
