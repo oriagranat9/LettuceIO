@@ -1,4 +1,5 @@
-﻿using System.Collections.Concurrent;
+﻿using System;
+using System.Collections.Concurrent;
 using ElectronCgi.DotNet;
 using LettuceIo.Dotnet.Base;
 using LettuceIo.Dotnet.Core;
@@ -22,12 +23,13 @@ namespace LettuceIo.Dotnet.ConsoleHost
 
         private static string NewAction(JToken settings)
         {
+            var id = settings.Value<string>("id");
             var builder = new ActionBuilder().FromSettings(settings);
             var action = builder.Build();
-            var added = ActiveActions.TryAdd(action.Id, action);
+            var added = ActiveActions.TryAdd(id, action);
             if (!added) return "Failed adding action to dictionary";
 
-            action.OnStatus = status => Connection.Send(action.Id, status);
+            action.Stats.Subscribe(stats => Connection.Send(id, JObject.FromObject(stats)));
             action.Start();
 
             return "";
