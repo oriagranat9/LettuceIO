@@ -1,6 +1,10 @@
 <template>
     <div>
-        <grouped-options v-model="actionDetails" :options="recordOptions"/>
+        <div id="record" class="row" style="">
+            <div class="col-4">
+                <grouped-options v-model="actionDetails" :options="recordOptions"/>
+            </div>
+        </div>
     </div>
 </template>
 
@@ -48,5 +52,7 @@
 </script>
 
 <style scoped>
-
+    #record {
+        margin: 0;
+    }
 </style>

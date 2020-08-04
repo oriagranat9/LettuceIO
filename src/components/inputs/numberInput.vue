@@ -4,6 +4,7 @@
         <input :id="id" :value="value"
                @focus="e => $emit('focus', e)"
                @blur="e => $emit('blur', e)"
+               min="0"
                v-on:input="updateValue($event.target.value)"
                class="form-control form-control-sm lettuce-input text-light " type=number :disabled="disabled">
     </div>

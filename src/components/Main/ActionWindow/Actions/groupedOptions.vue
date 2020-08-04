@@ -1,7 +1,7 @@
 <template>
     <div class="main-margins">
         <div class="row" v-for="(option, index) in options" v-bind:key="index">
-            <div class="col-2 justify-content-start align-self-center">
+            <div class="col-4 justify-content-start align-self-center">
                 <div class="form-group custom-control custom-checkbox checkbox-align grouped-row align-self-center" style="vertical-align: center">
                     <input v-model="value[option.key]['status']" :id="$id('group' + index)" type="checkbox"
                            @input="$emit('input', value)"
@@ -10,7 +10,7 @@
                            class="custom-control-label text-light checkbox-label">{{option.text}}</label>
                 </div>
             </div>
-            <div class="col-2 align-self-center justify-content-start">
+            <div class="col-8 align-self-center justify-content-start">
                 <numberInput v-model="value[option.key]['value']"
                              @input="$emit('input', value)"
                              :text="option.inputText"
