@@ -10,6 +10,10 @@
     box-shadow: 0 0 0 0.2em var(--shadow-color);
 }
 
+.lettuce-input:disabled {
+    background-color: var(--bg-tertiary);
+}
+
 .lettuce-button {
     background-color: var(--brand-primary);
     border-color: var(--border-color);

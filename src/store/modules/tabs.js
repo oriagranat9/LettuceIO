@@ -1,4 +1,5 @@
 import {getTemplate} from "./rabbitDetails";
+import {recordDetails, publishDetails} from './actionDetails'
 
 export default {
     state: {
@@ -23,6 +24,17 @@ export default {
         },
         setTabValue(state, {key, value}) {
             state.tabs[state.selectedTabIndex][key] = value
+        },
+        changeActionDetails(state) {
+            const currentTab = state.tabs[state.selectedTabIndex];
+            switch (currentTab.actionType) {
+                case "Record":
+                    currentTab.actionDetails = {...recordDetails};
+                    break;
+                case "Publish":
+                    currentTab.actionDetails = {...publishDetails};
+                    break;
+            }
         }
     },
     getters: {

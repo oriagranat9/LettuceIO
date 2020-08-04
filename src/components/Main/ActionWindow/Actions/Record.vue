@@ -1,6 +1,6 @@
 <template>
     <div>
-        <grouped-options :options="recordOptions"/>
+        <grouped-options v-model="actionDetails" :options="recordOptions"/>
     </div>
 </template>
 
@@ -13,18 +13,36 @@
             return {
                 recordOptions: [
                     {
-                        disabled: false,
-                        text: "bitch",
-                        visible: true,
-                        input: true,
-                        inputDisabled: false,
-                        inputText: "hi"
+                        text: "message count",
+                        inputText: "messages",
+                        key: "countLimit"
+                    },
+                    {
+                        text: "total size",
+                        inputText: "Mb",
+                        key: "sizeLimit"
+                    },
+                    {
+                        text: "record time",
+                        inputText: "sec",
+                        key: "timeLimit"
                     }
-                ]
+                ],
             }
+            // optional when recording from exchange add the routing key option
         },
         components: {
             groupedOptions
+        },
+        computed: {
+            actionDetails: {
+                get() {
+                    return this.$store.getters.getCurrentTab.actionDetails
+                },
+                set(value) {
+                    this.$store.state.tabs.tabs[this.$store.getters.getTabIndex].actionDetails = value;
+                }
+            }
         }
     }
 </script>

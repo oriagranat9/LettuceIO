@@ -20,7 +20,7 @@
             }
         },
         mounted() {
-            this.id = this._uid;
+            this.id = this.uid;
         },
         computed: {
             tmp: {

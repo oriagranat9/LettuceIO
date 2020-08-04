@@ -115,7 +115,8 @@
                     return this.$store.getters.getCurrentTab['actionType'];
                 },
                 set(value) {
-                    this.$store.commit('setTabValue', {key: "actionType", value: value})
+                    this.$store.commit('setTabValue', {key: "actionType", value: value});
+                    this.$store.commit("changeActionDetails")
                 }
             }
         }

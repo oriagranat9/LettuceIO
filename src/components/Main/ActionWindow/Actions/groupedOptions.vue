@@ -1,27 +1,33 @@
 <template>
-    <div>
+    <div class="main-margins">
         <div class="row" v-for="(option, index) in options" v-bind:key="index">
-            <div class="col-1">
-                <div class="form-group custom-control custom-checkbox">
-                    <input :id="id" type="checkbox" class="custom-control-input custom-control-input-green">
-                    <label style="user-select: none" :for="id" class="custom-control-label text-light ">{{option.text}}</label>
+            <div class="col-2 justify-content-start align-self-center">
+                <div class="form-group custom-control custom-checkbox checkbox-align grouped-row align-self-center" style="vertical-align: center">
+                    <input v-model="value[option.key]['status']" :id="$id('group' + index)" type="checkbox"
+                           @input="$emit('input', value)"
+                           class="custom-control-input custom-control-input-green">
+                    <label :for="$id('group' + index)"
+                           class="custom-control-label text-light checkbox-label">{{option.text}}</label>
                 </div>
             </div>
-            <div class="col-2">
-                <textInput :text="options.inputText"/>
+            <div class="col-2 align-self-center justify-content-start">
+                <numberInput v-model="value[option.key]['value']"
+                             @input="$emit('input', value)"
+                             :text="option.inputText"
+                             :disabled="!value[option.key]['status']"/>
             </div>
         </div>
     </div>
 </template>
 
 <script>
-    import textInput from "../../../inputs/textInput";
+    import numberInput from "../../../inputs/numberInput";
 
     export default {
         name: "groupedOption",
-        props: ['options'],
+        props: ['options', 'value'],
         components: {
-            textInput
+            numberInput
         },
         data() {
             return {
@@ -29,11 +35,27 @@
             }
         },
         mounted() {
-            this.id = this._uid;
+            this.id = this.uid;
         }
     }
 </script>
 
 <style scoped>
+    .grouped-row {
+        margin: 0;
+    }
 
+    .main-margins {
+        margin: 20px;
+    }
+
+    .checkbox-label {
+        user-select: none;
+        font-size: small;
+        white-space: nowrap
+    }
+
+    .checkbox-align {
+        text-align: start;
+    }
 </style>

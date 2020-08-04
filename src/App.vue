@@ -34,6 +34,7 @@
     :root {
         --bg-primary: #282828;
         --bg-secondary: #303030;
+        --bg-tertiary: #1c1c1c;
         --hairline-reguar: #434343;
         --brand-primary: #04b013;
         --brand-secondary: #07b01d;
