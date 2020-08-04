@@ -4,7 +4,7 @@ namespace LettuceIo.Dotnet.Core
 {
     public interface IAction
     {
-        public IObservable<ActionStats> Stats { get; }
+        public IObservable<ActionMetrics> Stats { get; }
         public void Start();
         public void Stop();
     }

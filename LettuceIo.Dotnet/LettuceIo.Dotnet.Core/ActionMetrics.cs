@@ -2,10 +2,10 @@
 
 namespace LettuceIo.Dotnet.Core
 {
-    public struct ActionStats
+    public struct ActionMetrics
     {
         public int Count;
         public TimeSpan Duration;
-        public float Size;
+        public double SizeKB;
     }
 }
