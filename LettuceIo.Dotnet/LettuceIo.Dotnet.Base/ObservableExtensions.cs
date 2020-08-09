@@ -1,33 +1,37 @@
 ﻿using System;
 using System.Reactive.Linq;
-using Newtonsoft.Json.Linq;
+using LettuceIo.Dotnet.Core;
 
 namespace LettuceIo.Dotnet.Base
 {
     public static class ObservableExtensions
     {
-        public static IObservable<T> Limit<T>(this IObservable<T> observable, JToken settings)
+        public static IObservable<Message> Limit(this IObservable<Message> observable, Limits limits)
         {
-            IObservable<T> ret = observable;
-            if (settings.Value<bool>("timeLimit"))
-            {
-                var seconds = settings.Value<double>("duration");
-                ret = ret.TakeUntil(Observable.Timer(TimeSpan.FromSeconds(seconds)));
-            }
-
-            if (settings.Value<bool>("countLimit"))
-            {
-                var i = 0;
-                var countLimit = settings.Value<int>("count");
-                ret = ret.TakeWhile(pattern => i++ < countLimit);
-            }
-
-            if (settings.Value<bool>("sizeLimit"))
-            {
-                throw new NotImplementedException("sizeLimit is not implemented.");
-            }
-
+            IObservable<Message> ret = observable;
+            if (limits.Duration != null) ret = ret.Limit((TimeSpan) limits.Duration);
+            if (limits.Amount != null) ret = ret.Limit((long) limits.Amount);
+            if (limits.SizeKB != null) ret = ret.Limit((double) limits.SizeKB);
             return ret;
+        }
+
+        public static IObservable<T> Limit<T>(this IObservable<T> observable, TimeSpan duration) =>
+            observable.TakeUntil(Observable.Timer(duration));
+
+        public static IObservable<T> Limit<T>(this IObservable<T> observable, long amount)
+        {
+            var i = 0L;
+            return observable.TakeUntil(_ => i++ < amount);
+        }
+
+        public static IObservable<Message> Limit(this IObservable<Message> observable, double sizeKB)
+        {
+            var s = 0D;
+            return observable.TakeUntil(message =>
+            {
+                s += message.SizeKB();
+                return s < sizeKB;
+            });
         }
     }
 }
