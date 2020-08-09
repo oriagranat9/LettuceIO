@@ -18,23 +18,24 @@ protocol.registerSchemesAsPrivileged([
 function createWindow() {
     // Create the browser window.
     win = new BrowserWindow({
-        width: 1300,
+        width: 1350,
         height: 620,
         minHeight: 620,
-        minWidth: 1280,
+        minWidth: 1300,
         title: "Lettuce.IO",
+        // frame: false,
         darkTheme: true,
         webPreferences: {
+            webSecurity: false,
             enableRemoteModule: true,
             // Use pluginOptions.nodeIntegration, leave this alone
             // See nklayman.github.io/vue-cli-plugin-electron-builder/guide/security.html#node-integration for more info
             nodeIntegration: process.env.ELECTRON_NODE_INTEGRATION
         }
     });
-
     if (process.env.WEBPACK_DEV_SERVER_URL) {
         // Load the url of the dev server if in development mode
-        win.loadURL(process.env.WEBPACK_DEV_SERVER_URL)
+        win.loadURL(process.env.WEBPACK_DEV_SERVER_URL);
         if (!process.env.IS_TEST) win.webContents.openDevTools()
     } else {
         createProtocol('app')
@@ -44,7 +45,7 @@ function createWindow() {
 
     win.on('closed', () => {
         win = null
-    })
+    });
 }
 
 // Quit when all windows are closed.
@@ -54,7 +55,7 @@ app.on('window-all-closed', () => {
     if (process.platform !== 'darwin') {
         app.quit()
     }
-})
+});
 
 app.on('activate', () => {
     // On macOS it's common to re-create a window in the app when the
@@ -62,7 +63,7 @@ app.on('activate', () => {
     if (win === null) {
         createWindow()
     }
-})
+});
 
 // This method will be called when Electron has finished
 // initialization and is ready to create browser windows.

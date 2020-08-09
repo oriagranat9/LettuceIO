@@ -7,12 +7,15 @@ import {BootstrapVue, IconsPlugin} from 'bootstrap-vue'
 import 'bootstrap/dist/css/bootstrap.css'
 import 'bootstrap-vue/dist/bootstrap-vue.css'
 import '@/assets/lettuceCss.css'
+import axios from 'axios'
+import VueAxios from 'vue-axios'
 
 Vue.prototype.$ipc = ipcRenderer;
 Vue.config.productionTip = false;
 Vue.use(BootstrapVue);
 Vue.use(IconsPlugin);
 Vue.use(UniqueId);
+Vue.use(VueAxios, axios)
 
 new Vue({
     store,

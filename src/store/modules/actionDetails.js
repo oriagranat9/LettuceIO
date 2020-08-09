@@ -26,7 +26,7 @@ const publishDetails = {
         status: false,
         value: 0
     },
-    isRandom: false,
+    isShuffle: false,
     isLoop: false,
     playback: false,
     routingKeyDetails: {

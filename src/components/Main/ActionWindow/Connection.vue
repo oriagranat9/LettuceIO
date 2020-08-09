@@ -19,7 +19,7 @@
                             </div>
                         </div>
                         <div class="row" v-if="showAdvanced">
-                            <div class="col-lg-10"  style="margin-top: 5px">
+                            <div class="col-lg-10" style="margin-top: 5px">
                                 <text-input v-model="connectionDetails.amqpHostName" text="AMQP Hostname"/>
                             </div>
                             <div class="col-md-2">
@@ -34,7 +34,9 @@
                         <text-input v-model="connectionDetails.vhost" class="space" text="Vhost"/>
                     </div>
                     <div class="col-lg-2 d-flex justify-content-center">
-                        <button style="width: 50%" class="btn btn-dark lettuce-button align-self-center">Start</button>
+                        <button @click="queryVHosts" style="width: 50%"
+                                class="btn btn-dark lettuce-button align-self-center">Start
+                        </button>
                     </div>
                 </div>
             </div>
@@ -65,14 +67,26 @@
             }
         },
         methods: {
+            queryVHosts() {
+                if (this.connectionDetails.apiHostName !== "" && this.connectionDetails.apiPort !== "" && this.connectionDetails.username && this.connectionDetails.password) {
+                    this.$http.get(`https://${this.connectionDetails.username}:${this.connectionDetails.password}@${this.connectionDetails.apiHostName}:${this.connectionDetails.apiPort}/api/vhosts`, {
+                        headers: {
+                            "Content-Type": "application/json"
+                        }
+                    }).then((respons) => {
+                        console.log(respons)
+                    });
+                }
+            },
             parseConnectionString() {
-                let conn = this.connectionString.replace("http://", "").split("/")[0];
+                let conn = this.connectionString.replace("http://", "").replace("amqp://", "")
+                    .split("/")[0];
                 let tmp = conn.split("@");
                 let uri = tmp[0];
                 if (tmp.length > 1) {
                     let authList = tmp[0].split(":");
                     this.connectionDetails.username = authList[0];
-                    this.connectionDetails.password = authList[0];
+                    this.connectionDetails.password = authList[1];
                     uri = tmp[1]
                 }
                 let uriList = uri.split(":");
@@ -119,6 +133,14 @@
                     this.$store.commit("changeActionDetails")
                 }
             }
+        },
+        watch: {
+            // connectionDetails: {
+            //     deep: true,
+            //     handler() {
+            //         this.queryVHosts();
+            //     }
+            // }
         }
     }
 </script>

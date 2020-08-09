@@ -7,11 +7,11 @@
             <div class="col-8 justify-content-start" style="margin-top: 20px">
                 <div style="text-align: start; margin: 20px" class="top">
                     <div class="form-group custom-control custom-checkbox checkbox-align grouped-row align-self-center">
-                        <input v-model="actionDetails.isRandom" :id="$id('random')" type="checkbox"
+                        <input v-model="actionDetails.isShuffle" :id="$id('random')" type="checkbox"
                                class="custom-control-input custom-control-input-green">
                         <label :for="$id('random')"
                                class="custom-control-label text-light checkbox-label"
-                               style="font-size: small">Randomize Order</label>
+                               style="font-size: small">Shuffle Order</label>
                     </div>
 
                     <div class="form-group custom-control custom-checkbox checkbox-align grouped-row align-self-center">
