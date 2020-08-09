@@ -34,7 +34,7 @@
                                     text="Username"/>
                         <text-input @blur="queryAllVhosts" v-model="connectionDetails.password" class="space"
                                     text="Password"/>
-                        <select-input @input="queryAllOptions" v-model="connectionDetails.vhost" :options="VHostList"
+                        <select-input @input="queryAllOptions" v-model="connectionDetails.vhost" :options="queriedList.vhosts"
                                       class="space"
                                       text="VHost"/>
                     </div>
@@ -70,7 +70,6 @@
                 ],
                 connectionString: "",
                 showAdvanced: false,
-                VHostList: []
             }
         },
         methods: {
