@@ -24,7 +24,7 @@ namespace LettuceIo.Dotnet.ConsoleHost
         private static string NewAction(JToken settings)
         {
             var id = settings.Value<string>("id");
-            var builder = new ActionBuilder().FromSettings(settings);
+            var builder = new ActionBuilder().Configure(settings);
             var action = builder.Build();
             var added = ActiveActions.TryAdd(id, action);
             if (!added) return "Failed adding action to dictionary";
