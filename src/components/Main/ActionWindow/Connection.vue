@@ -11,11 +11,12 @@
                         <div class="row">
                             <div class="col-lg-10" style="margin-top: 5px">
                                 <text-input v-model="connectionString" text="Connection String"
-                                            @blur="parseConnectionString"
+                                            @blur="()=> {parseConnectionString(); queryAllVhosts()}"
                                             @focus="constructConnectionString"/>
                             </div>
                             <div class="col-md-2">
-                                <text-input class="space" v-model="connectionDetails.apiPort" text="API Port"/>
+                                <text-input @blur="queryAllVhosts" class="space" v-model="connectionDetails.apiPort"
+                                            text="API Port"/>
                             </div>
                         </div>
                         <div class="row" v-if="showAdvanced">
@@ -29,12 +30,16 @@
                     </div>
 
                     <div class="col-lg-1">
-                        <text-input v-model="connectionDetails.username" class="space" text="Username"/>
-                        <text-input v-model="connectionDetails.password" class="space" text="Password"/>
-                        <text-input v-model="connectionDetails.vhost" class="space" text="Vhost"/>
+                        <text-input @blur="queryAllVhosts" v-model="connectionDetails.username" class="space"
+                                    text="Username"/>
+                        <text-input @blur="queryAllVhosts" v-model="connectionDetails.password" class="space"
+                                    text="Password"/>
+                        <select-input @input="queryAllOptions" v-model="connectionDetails.vhost" :options="VHostList"
+                                      class="space"
+                                      text="VHost"/>
                     </div>
                     <div class="col-lg-2 d-flex justify-content-center">
-                        <button @click="queryVHosts" style="width: 50%"
+                        <button style="width: 50%"
                                 class="btn btn-dark lettuce-button align-self-center">Start
                         </button>
                     </div>
@@ -48,6 +53,7 @@
     import textInput from "../../inputs/textInput";
     import selectInput from "../../inputs/selectInput";
     import checkboxInput from "../../inputs/checkboxInput";
+    import {queryVHosts, queryOptions} from './rabbitQuery'
 
     export default {
         name: "Connection",
@@ -63,20 +69,28 @@
                     "Publish"
                 ],
                 connectionString: "",
-                showAdvanced: false
+                showAdvanced: false,
+                VHostList: []
             }
         },
         methods: {
-            queryVHosts() {
-                if (this.connectionDetails.apiHostName !== "" && this.connectionDetails.apiPort !== "" && this.connectionDetails.username && this.connectionDetails.password) {
-                    this.$http.get(`https://${this.connectionDetails.username}:${this.connectionDetails.password}@${this.connectionDetails.apiHostName}:${this.connectionDetails.apiPort}/api/vhosts`, {
-                        headers: {
-                            "Content-Type": "application/json"
-                        }
-                    }).then((respons) => {
-                        console.log(respons)
-                    });
-                }
+            queryAllVhosts() {
+                queryVHosts(this.connectionDetails.apiHostName,
+                    this.connectionDetails.apiPort,
+                    this.connectionDetails.username,
+                    this.connectionDetails.password).then(value => {
+                        this.queriedList.vhosts = value;
+                    }
+                )
+            },
+            queryAllOptions() {
+                queryOptions(this.connectionDetails.apiHostName,
+                    this.connectionDetails.apiPort,
+                    this.connectionDetails.username,
+                    this.connectionDetails.password,
+                    this.connectionDetails.vhost).then(value => {
+                    this.queriedList.optionList = value;
+                })
             },
             parseConnectionString() {
                 let conn = this.connectionString.replace("http://", "").replace("amqp://", "")
@@ -119,6 +133,14 @@
             }
         },
         computed: {
+            queriedList: {
+                get() {
+                    return this.$store.getters.getCurrentTab.tmpLists;
+                },
+                set(value) {
+                    this.$store.commit('setTabValue', {name: "tmpLists", value: value})
+                }
+            },
             connectionDetails: {
                 get() {
                     return this.$store.getters.getCurrentTab.connection;
@@ -133,14 +155,6 @@
                     this.$store.commit("changeActionDetails")
                 }
             }
-        },
-        watch: {
-            // connectionDetails: {
-            //     deep: true,
-            //     handler() {
-            //         this.queryVHosts();
-            //     }
-            // }
         }
     }
 </script>

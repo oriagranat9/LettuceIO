@@ -2,7 +2,8 @@
     <div class="margins">
         <div class="row span justify-content-start">
             <div class="col-3 align-self-end" style="text-align: start">
-                <button @click="selectFolder" style="margin-top: 5px" class="btn btn-outline-success align-self-center align-middle">Select
+                <button @click="selectFolder" style="margin-top: 5px"
+                        class="btn btn-outline-success align-self-center align-middle">Select
                     Folder
                 </button>
             </div>
@@ -20,21 +21,25 @@
         name: "Settings",
         components: {SelectInput},
         data() {
-            return {
-                selectedOption: "",
-                optionList: ["brrrrrrr"]
-            }
+            return {}
         },
         methods: {
             selectFolder() {
                 const {dialog} = require('electron').remote;
-                dialog.showOpenDialog({properties: ['openDirectory']}).then(
-
-                )
+                dialog.showOpenDialog({properties: ['openDirectory']}).then()
             }
 
         },
         computed: {
+            optionList: {
+                get() {
+                    let tmp = [];
+                    for (let i of this.$store.getters.getCurrentTab.tmpLists.optionList) {
+                        tmp.push(`${i['type']}/${i['name']}`)
+                    }
+                    return tmp;
+                }
+            },
             selectName: {
                 get() {
                     if (this.$store.getters.getCurrentTab.actionType === "Publish") {
@@ -43,7 +48,25 @@
                         return "From"
                     }
                 }
-            }
+            },
+            selectedFolder: {
+                get() {
+                    return this.$store.getters.getCurrentTab.folderPath;
+                },
+                set(value) {
+                    this.$store.commit('setTabValue', {name: "folderPath", value: value});
+                }
+            },
+            selectedOption: {
+                get() {
+                    return this.$store.getters.getCurrentTab.selectedOption;
+                },
+                set(value) {
+                    let index = this.optionList.indexOf(value);
+                    let selectedOption = this.$store.getters.getCurrentTab.tmpLists.optionList[index];
+                    this.$store.commit('setTabValue', {name: "selectedOption", value: selectedOption});
+                }
+            },
         }
     }
 </script>
