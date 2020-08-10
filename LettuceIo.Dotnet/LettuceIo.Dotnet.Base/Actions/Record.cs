@@ -17,7 +17,6 @@ namespace LettuceIo.Dotnet.Base.Actions
     {
         public IObservable<ActionMetrics> Stats => _statsSubject;
 
-
         #region fields
 
         private readonly IConnectionFactory _connectionFactory;
@@ -42,8 +41,8 @@ namespace LettuceIo.Dotnet.Base.Actions
         {
             _connectionFactory = connectionFactory;
             _limits = limits;
-            _queue = queue;
-            _folderPath = folderPath;
+            _queue = queue ?? throw new ArgumentException(nameof(queue));
+            _folderPath = folderPath ?? throw new ArgumentException(nameof(folderPath));
             _serializerSettings = serializerSettings;
         }
 
