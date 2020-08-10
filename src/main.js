@@ -9,6 +9,15 @@ import 'bootstrap-vue/dist/bootstrap-vue.css'
 import '@/assets/lettuceCss.css'
 import axios from 'axios'
 import VueAxios from 'vue-axios'
+import {Titlebar, Color} from 'custom-electron-titlebar'
+
+new Titlebar({
+    backgroundColor: Color.fromHex('#303030'),
+    shadow: true,
+    menu: false,
+    menuPosition: "left"
+}).updateTitle("Lettuce.IO");
+
 
 Vue.prototype.$ipc = ipcRenderer;
 Vue.config.productionTip = false;

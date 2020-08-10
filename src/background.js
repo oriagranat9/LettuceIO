@@ -23,7 +23,7 @@ function createWindow() {
         minHeight: 620,
         minWidth: 1300,
         title: "Lettuce.IO",
-        // frame: false,
+        frame: false,
         darkTheme: true,
         webPreferences: {
             webSecurity: false,
@@ -45,6 +45,9 @@ function createWindow() {
 
     win.on('closed', () => {
         win = null
+    });
+    win.on('close', function () {
+        app.exit();
     });
 }
 
@@ -80,6 +83,7 @@ app.on('ready', async () => {
     initComm(isDevelopment)
     createWindow()
 })
+
 
 // Exit cleanly on request from parent process in development mode.
 if (isDevelopment) {
