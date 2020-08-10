@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Concurrent;
+using System.Net.Mime;
 using ElectronCgi.DotNet;
 using LettuceIo.Dotnet.Base;
 using LettuceIo.Dotnet.Base.Extensions;
@@ -13,7 +14,7 @@ namespace LettuceIo.Dotnet.ConsoleHost
         private static readonly ConcurrentDictionary<string, IAction> ActiveActions =
             new ConcurrentDictionary<string, IAction>();
 
-        private static readonly Connection Connection = new ConnectionBuilder().WithLogging().Build();
+        private static readonly Connection Connection = new ConnectionBuilder().Build();
 
         private static void Main()
         {

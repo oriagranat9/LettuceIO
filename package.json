@@ -17,6 +17,7 @@
     "bootstrap": "^4.5.0",
     "bootstrap-vue": "^2.16.0",
     "core-js": "^3.6.5",
+    "custom-electron-titlebar": "^3.2.3",
     "electron-cgi": "^1.0.5",
     "uuid": "^8.3.0",
     "vue": "^2.6.11",

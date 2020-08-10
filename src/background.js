@@ -5,7 +5,7 @@ import {createProtocol} from 'vue-cli-plugin-electron-builder/lib'
 import installExtension, {VUEJS_DEVTOOLS} from 'electron-devtools-installer'
 
 const isDevelopment = process.env.NODE_ENV !== 'production';
-import initComm from './backend/communication'
+import {initComm} from './backend/communication'
 // Keep a global reference of the window object, if you don't, the window will
 // be closed automatically when the JavaScript object is garbage collected.
 let win;
@@ -23,7 +23,7 @@ function createWindow() {
         minHeight: 620,
         minWidth: 1300,
         title: "Lettuce.IO",
-        // frame: false,
+        frame: false,
         darkTheme: true,
         webPreferences: {
             webSecurity: false,
@@ -45,6 +45,9 @@ function createWindow() {
 
     win.on('closed', () => {
         win = null
+    });
+    win.on('close', function () {
+        app.exit();
     });
 }
 
