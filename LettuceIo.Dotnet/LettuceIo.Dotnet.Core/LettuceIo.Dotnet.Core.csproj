@@ -2,16 +2,10 @@
 
     <PropertyGroup>
         <TargetFramework>netcoreapp3.1</TargetFramework>
-        <Nullable>enable</Nullable>
     </PropertyGroup>
 
     <ItemGroup>
-      <ProjectReference Include="..\LettuceIo.Dotnet.Core\LettuceIo.Dotnet.Core.csproj" />
-    </ItemGroup>
-
-    <ItemGroup>
       <PackageReference Include="Newtonsoft.Json" Version="12.0.3" />
-      <PackageReference Include="RabbitMQ.Client" Version="6.2.0-rc.1" />
       <PackageReference Include="Rocket.Surgery.Reactive.Extensions" Version="2.5.0" />
     </ItemGroup>
 

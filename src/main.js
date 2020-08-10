@@ -24,7 +24,7 @@ Vue.config.productionTip = false;
 Vue.use(BootstrapVue);
 Vue.use(IconsPlugin);
 Vue.use(UniqueId);
-Vue.use(VueAxios, axios)
+Vue.use(VueAxios, axios);
 
 new Vue({
     store,

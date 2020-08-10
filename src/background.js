@@ -5,7 +5,7 @@ import {createProtocol} from 'vue-cli-plugin-electron-builder/lib'
 import installExtension, {VUEJS_DEVTOOLS} from 'electron-devtools-installer'
 
 const isDevelopment = process.env.NODE_ENV !== 'production';
-import initComm from './backend/communication'
+import {initComm} from './backend/communication'
 // Keep a global reference of the window object, if you don't, the window will
 // be closed automatically when the JavaScript object is garbage collected.
 let win;
@@ -18,13 +18,14 @@ protocol.registerSchemesAsPrivileged([
 function createWindow() {
     // Create the browser window.
     win = new BrowserWindow({
-        width: 1350,
+        width: 1020,
         height: 620,
         minHeight: 620,
-        minWidth: 1300,
+        minWidth: 1000,
         title: "Lettuce.IO",
         frame: false,
         darkTheme: true,
+        icon: "src/assets/icon.png",
         webPreferences: {
             webSecurity: false,
             enableRemoteModule: true,

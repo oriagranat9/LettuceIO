@@ -3,12 +3,18 @@
     <PropertyGroup>
         <OutputType>Exe</OutputType>
         <TargetFramework>netcoreapp3.1</TargetFramework>
+        <AssemblyName>LettuceIO.BE</AssemblyName>
     </PropertyGroup>
 
     <ItemGroup>
       <PackageReference Include="ElectronCgi.DotNet" Version="1.0.3" />
-      <PackageReference Include="Newtonsoft.Json.Bson" Version="1.0.2" />
+      <PackageReference Include="Newtonsoft.Json" Version="12.0.3" />
       <PackageReference Include="RabbitMQ.Client" Version="6.2.0-rc.1" />
+      <PackageReference Include="Rocket.Surgery.Reactive.Extensions" Version="2.5.0" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <ProjectReference Include="..\LettuceIo.Dotnet.Base\LettuceIo.Dotnet.Base.csproj" />
     </ItemGroup>
 
 </Project>
