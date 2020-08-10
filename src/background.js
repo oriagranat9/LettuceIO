@@ -25,6 +25,7 @@ function createWindow() {
         title: "Lettuce.IO",
         frame: false,
         darkTheme: true,
+        icon: "src/assets/icon.png",
         webPreferences: {
             webSecurity: false,
             enableRemoteModule: true,
