@@ -18,10 +18,10 @@ protocol.registerSchemesAsPrivileged([
 function createWindow() {
     // Create the browser window.
     win = new BrowserWindow({
-        width: 1350,
+        width: 1020,
         height: 620,
         minHeight: 620,
-        minWidth: 1300,
+        minWidth: 1000,
         title: "Lettuce.IO",
         frame: false,
         darkTheme: true,
