@@ -9,12 +9,12 @@
                     </div>
                     <div class="col-lg-6">
                         <div class="row">
-                            <div class="col-lg-10" style="margin-top: 5px">
+                            <div class="col-lg-9" style="margin-top: 5px">
                                 <text-input v-model="connectionString" text="Connection String"
                                             @blur="()=> {parseConnectionString(); queryAllVhosts()}"
                                             @focus="constructConnectionString"/>
                             </div>
-                            <div class="col-md-2">
+                            <div class="col-md-3">
                                 <text-input @blur="queryAllVhosts" class="space" v-model="connectionDetails.apiPort"
                                             text="API Port"/>
                             </div>
@@ -29,7 +29,7 @@
                         </div>
                     </div>
 
-                    <div class="col-lg-1">
+                    <div class="col-lg-2">
                         <text-input @blur="queryAllVhosts" v-model="connectionDetails.username" class="space"
                                     text="Username"/>
                         <text-input @blur="queryAllVhosts" v-model="connectionDetails.password" class="space"
@@ -40,7 +40,7 @@
                                       text="VHost"/>
                     </div>
                     <div class="col-lg-2 d-flex justify-content-center">
-                        <button style="width: 50%" @click="startAction"
+                        <button style="width: 75%" @click="startAction"
                                 class="btn btn-dark lettuce-button align-self-center">Start
                         </button>
                     </div>
@@ -146,7 +146,7 @@ export default {
                 return this.$store.getters.getCurrentTab.tmpLists;
             },
             set(value) {
-                this.$store.commit('setTabValue', {name: "tmpLists", value: value})
+                this.$store.commit('setTabValue', {key: "tmpLists", value: value})
             }
         },
         connectionDetails: {

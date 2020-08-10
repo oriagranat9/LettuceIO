@@ -26,7 +26,9 @@
         methods: {
             selectFolder() {
                 const {dialog} = require('electron').remote;
-                dialog.showOpenDialog({properties: ['openDirectory']}).then()
+                dialog.showOpenDialog({properties: ['openDirectory', 'createDirectory']}).then(value => {
+                    this.selectedFolder = value.filePaths[0];
+                })
             }
 
         },
@@ -54,7 +56,7 @@
                     return this.$store.getters.getCurrentTab.folderPath;
                 },
                 set(value) {
-                    this.$store.commit('setTabValue', {name: "folderPath", value: value});
+                    this.$store.commit('setTabValue', {key: "folderPath", value: value});
                 }
             },
             selectedOption: {
@@ -64,7 +66,7 @@
                 set(value) {
                     let index = this.optionList.indexOf(value);
                     let selectedOption = this.$store.getters.getCurrentTab.tmpLists.optionList[index];
-                    this.$store.commit('setTabValue', {name: "selectedOption", value: selectedOption});
+                    this.$store.commit('setTabValue', {key: "selectedOption", value: selectedOption});
                 }
             },
         }
