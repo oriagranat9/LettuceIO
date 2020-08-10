@@ -1,0 +1,61 @@
+<template>
+    <div class="main-margins">
+        <div class="row" v-for="(option, index) in options" v-bind:key="index">
+            <div class="col-4 justify-content-start align-self-center">
+                <div class="form-group custom-control custom-checkbox checkbox-align grouped-row align-self-center" style="vertical-align: center">
+                    <input v-model="value[option.key]['status']" :id="$id('group' + index)" type="checkbox"
+                           @input="$emit('input', value)"
+                           class="custom-control-input custom-control-input-green">
+                    <label :for="$id('group' + index)"
+                           class="custom-control-label text-light checkbox-label">{{option.text}}</label>
+                </div>
+            </div>
+            <div class="col-8 align-self-center justify-content-start">
+                <numberInput v-model="value[option.key]['value']"
+                             @input="$emit('input', value)"
+                             :text="option.inputText"
+                             :disabled="!value[option.key]['status']"/>
+            </div>
+        </div>
+    </div>
+</template>
+
+<script>
+    import numberInput from "../../../inputs/numberInput";
+
+    export default {
+        name: "groupedOption",
+        props: ['options', 'value'],
+        components: {
+            numberInput
+        },
+        data() {
+            return {
+                id: null,
+            }
+        },
+        mounted() {
+            this.id = this.uid;
+        }
+    }
+</script>
+
+<style scoped>
+    .grouped-row {
+        margin: 0;
+    }
+
+    .main-margins {
+        margin: 20px;
+    }
+
+    .checkbox-label {
+        user-select: none;
+        font-size: small;
+        white-space: nowrap
+    }
+
+    .checkbox-align {
+        text-align: start;
+    }
+</style>

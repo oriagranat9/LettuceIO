@@ -1,7 +1,10 @@
 module.exports = {
+    configureWebpack: {
+        target: "electron-renderer"
+    },
     pluginOptions: {
-      electronBuilder: {
-        nodeIntegration: true
-      }
+        electronBuilder: {
+            nodeIntegration: true
+        }
     }
-  }
+};
