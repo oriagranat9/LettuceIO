@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Concurrent;
-using System.Net.Mime;
 using ElectronCgi.DotNet;
 using LettuceIo.Dotnet.Base;
 using LettuceIo.Dotnet.Base.Extensions;
@@ -18,30 +17,29 @@ namespace LettuceIo.Dotnet.ConsoleHost
 
         private static void Main()
         {
-            Connection.On<JToken, string>("NewAction", NewAction);
-            Connection.On<string, string>("TerminateAction", TerminateAction);
+            Connection.On<JToken>("NewAction", NewAction);
+            Connection.On<string>("TerminateAction", TerminateAction);
             Connection.Listen();
         }
 
-        private static string NewAction(JToken settings)
+        private static void NewAction(JToken settings)
         {
             var id = settings.Value<string>("id");
+            if (ActiveActions.ContainsKey(id)) 
+                throw new Exception($"Key \"{id}\" already exists in the dictionary");
             var factory = new ActionFactory().Configure(settings);
             var action = factory.Build();
-            var added = ActiveActions.TryAdd(id, action);
-            if (!added) return "Failed adding action to dictionary";
-
+            if (!ActiveActions.TryAdd(id, action))
+                throw new Exception($"Key \"{id}\" already exists in the dictionary");
             action.Stats.Subscribe(stats => Connection.Send(id, JObject.FromObject(stats)));
             action.Start();
-
-            return "";
         }
 
-        private static string TerminateAction(string id)
+        private static void TerminateAction(string id)
         {
-            var removed = ActiveActions.TryRemove(id, out var action);
-            if (removed) action.Stop();
-            return removed ? "" : "Failed removing action from dictionary";
+            if (!ActiveActions.TryRemove(id, out var action))
+                throw new Exception("Failed removing action from dictionary");
+            action.Stop();
         }
     }
 }

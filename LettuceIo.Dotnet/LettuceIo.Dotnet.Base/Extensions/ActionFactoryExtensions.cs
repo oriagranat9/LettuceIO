@@ -10,7 +10,7 @@ namespace LettuceIo.Dotnet.Base.Extensions
     {
         public static ActionFactory Configure(this ActionFactory f, JToken details)
         {
-            f.ActionType = details.Value<ActionType>("actionType");
+            f.ActionType = Enum.Parse<ActionType>(details.Value<string>("actionType"));
             f.FolderPath = details.Value<string>("folderPath");
             f.ConfigureEntities(details["selectedOption"]);
             f.ConnectionFactory = ToConnectionFactory(details["connection"]);
