@@ -5,6 +5,7 @@ using System.IO;
 using System.Reactive;
 using System.Reactive.Linq;
 using System.Reactive.Subjects;
+using LettuceIo.Dotnet.Base.Extensions;
 using LettuceIo.Dotnet.Core;
 using Newtonsoft.Json;
 using RabbitMQ.Client;
@@ -22,7 +23,7 @@ namespace LettuceIo.Dotnet.Base.Actions
         private readonly IConnectionFactory _connectionFactory;
         private readonly Limits _limits;
         private readonly string _queue;
-        private readonly DirectoryInfo _directory;
+        private readonly string _folderPath;
         private readonly JsonSerializerSettings _serializerSettings;
         private IModel? _channel;
         private ActionMetrics _currentMetrics;
@@ -36,13 +37,13 @@ namespace LettuceIo.Dotnet.Base.Actions
 
         #endregion
 
-        public Record(IConnectionFactory connectionFactory, Limits limits, string queue, DirectoryInfo directory,
+        public Record(IConnectionFactory connectionFactory, Limits limits, string queue, string folderPath,
             JsonSerializerSettings serializerSettings)
         {
             _connectionFactory = connectionFactory;
             _limits = limits;
             _queue = queue;
-            _directory = directory;
+            _folderPath = folderPath;
             _serializerSettings = serializerSettings;
         }
 
@@ -79,7 +80,7 @@ namespace LettuceIo.Dotnet.Base.Actions
         private void OnMessage(Message message)
         {
             var name = _queue + DateTime.Now.ToString(CultureInfo.InvariantCulture);
-            var task = File.WriteAllTextAsync(Path.Join(_directory.FullName, name),
+            var task = File.WriteAllTextAsync(Path.Join(_folderPath, name),
                 JsonConvert.SerializeObject(message, _serializerSettings));
             _currentMetrics.Duration = _stopwatch.Elapsed;
             _currentMetrics.Count++;

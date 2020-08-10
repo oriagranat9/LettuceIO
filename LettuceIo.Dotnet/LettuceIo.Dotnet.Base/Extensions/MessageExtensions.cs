@@ -1,6 +1,6 @@
 ﻿using LettuceIo.Dotnet.Core;
 
-namespace LettuceIo.Dotnet.Base
+namespace LettuceIo.Dotnet.Base.Extensions
 {
     public static class MessageExtensions
     {

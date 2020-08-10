@@ -16,8 +16,7 @@ namespace LettuceIO.Dotnet.Test
         {
             const string path = "";
             const string queue = "";
-            _record = new Record(new ConnectionFactory(), new Limits(), queue, new DirectoryInfo(path),
-                new JsonSerializerSettings());
+            _record = new Record(new ConnectionFactory(), new Limits(), queue, path, new JsonSerializerSettings());
         }
 
         [Test]

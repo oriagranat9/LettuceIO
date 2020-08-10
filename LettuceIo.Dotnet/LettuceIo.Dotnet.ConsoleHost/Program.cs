@@ -2,6 +2,7 @@
 using System.Collections.Concurrent;
 using ElectronCgi.DotNet;
 using LettuceIo.Dotnet.Base;
+using LettuceIo.Dotnet.Base.Extensions;
 using LettuceIo.Dotnet.Core;
 using Newtonsoft.Json.Linq;
 
@@ -24,8 +25,8 @@ namespace LettuceIo.Dotnet.ConsoleHost
         private static string NewAction(JToken settings)
         {
             var id = settings.Value<string>("id");
-            var builder = new ActionBuilder().Configure(settings);
-            var action = builder.Build();
+            var factory = new ActionFactory().Configure(settings);
+            var action = factory.Build();
             var added = ActiveActions.TryAdd(id, action);
             if (!added) return "Failed adding action to dictionary";
 
