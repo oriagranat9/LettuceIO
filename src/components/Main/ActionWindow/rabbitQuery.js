@@ -1,16 +1,15 @@
-import vue from 'vue'
-
+import axios from 'axios'
 
 async function queryVHosts(hostname, port, username, password) {
     let tmp = [];
     if (hostname !== "" && port !== "" && username !== "" && password !== "") {
-        let response = await vue.$http.get(getConnString(hostname, port, username, password) + "/api/vhosts", {
+        let response = await axios.get(getConnString(hostname, port, username, password) + "/api/vhosts", {
             headers: {
-                "Content-Type": "application/json"
+                "Content-Type": "application/json",
             }
         });
         if (response.status === 200) {
-            for (let vhost of response) {
+            for (let vhost of response.data) {
                 tmp.push(vhost['name'])
             }
         }
@@ -21,8 +20,8 @@ async function queryVHosts(hostname, port, username, password) {
 async function queryOptions(hostname, port, username, password, vhost) {
     let tmp = [];
     if (hostname !== "" && port !== "" && username !== "" && password !== "" && vhost !== "") {
-        let queueRequest = vue.$http.get(getConnString(hostname, port, username, password) + `/api/queues/${vhost}`);
-        let exchangeRequest = vue.$http.get(getConnString(hostname, port, username, password) + `/api/exchanges/${vhost}`);
+        let queueRequest = axios.get(getConnString(hostname, port, username, password) + `/api/queues/${vhost}`);
+        let exchangeRequest = axios.get(getConnString(hostname, port, username, password) + `/api/exchanges/${vhost}`);
         let responses = await Promise.all([queueRequest, exchangeRequest]);
 
         let queueResponse = responses[0];
