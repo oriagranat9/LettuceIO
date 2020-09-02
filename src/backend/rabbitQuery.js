@@ -3,7 +3,11 @@ import axios from 'axios'
 async function queryVHosts(hostname, port, username, password) {
     let tmp = [];
     if (hostname !== "" && port !== "" && username !== "" && password !== "") {
-        let response = await axios.get(getConnString(hostname, port, username, password) + "/api/vhosts", {
+        let response = await axios.get(getConnString(hostname, port) + "/api/vhosts", {
+            auth: {
+                username: username,
+                password: password
+            },
             headers: {
                 "Content-Type": "application/json",
             }
@@ -20,8 +24,24 @@ async function queryVHosts(hostname, port, username, password) {
 async function queryOptions(hostname, port, username, password, vhost) {
     let tmp = [];
     if (hostname !== "" && port !== "" && username !== "" && password !== "" && vhost !== "") {
-        let queueRequest = axios.get(getConnString(hostname, port, username, password) + `/api/queues/${vhost}`);
-        let exchangeRequest = axios.get(getConnString(hostname, port, username, password) + `/api/exchanges/${vhost}`);
+        let queueRequest = axios.get(getConnString(hostname, port) + `/api/queues/${vhost}`,{
+            auth: {
+                username: username,
+                password: password
+            },
+            headers: {
+                "Content-Type": "application/json",
+            }
+        });
+        let exchangeRequest = axios.get(getConnString(hostname, port, username, password) + `/api/exchanges/${vhost}`,{
+            auth: {
+                username: username,
+                password: password
+            },
+            headers: {
+                "Content-Type": "application/json",
+            }
+        });
         let responses = await Promise.all([queueRequest, exchangeRequest]);
 
         let queueResponse = responses[0];
@@ -47,8 +67,8 @@ async function queryOptions(hostname, port, username, password, vhost) {
     return tmp;
 }
 
-function getConnString(hostname, port, username, password) {
-    return `http://${username}:${password}@${hostname}:${port}`
+function getConnString(hostname, port) {
+    return `http://${hostname}:${port}`
 }
 
 export {queryVHosts, queryOptions}

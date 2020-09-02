@@ -51,137 +51,138 @@
 </template>
 
 <script>
-import textInput from "../../inputs/textInput";
-import selectInput from "../../inputs/selectInput";
-import checkboxInput from "../../inputs/checkboxInput";
-import {queryVHosts, queryOptions} from './rabbitQuery'
+    import textInput from "../../inputs/textInput";
+    import selectInput from "../../inputs/selectInput";
+    import checkboxInput from "../../inputs/checkboxInput";
 
-export default {
-    name: "Connection",
-    components: {
-        textInput,
-        selectInput,
-        checkboxInput
-    },
-    data() {
-        return {
-            options: [
-                "Record",
-                "Publish"
-            ],
-            connectionString: "",
-            showAdvanced: false,
-        }
-    },
-    methods: {
-        queryAllVhosts() {
-            queryVHosts(this.connectionDetails.apiHostName,
-                this.connectionDetails.apiPort,
-                this.connectionDetails.username,
-                this.connectionDetails.password).then(value => {
-                    this.queriedList.vhosts = value;
-                }
-            )
+    export default {
+        name: "Connection",
+        components: {
+            textInput,
+            selectInput,
+            checkboxInput
         },
-        queryAllOptions() {
-            queryOptions(this.connectionDetails.apiHostName,
-                this.connectionDetails.apiPort,
-                this.connectionDetails.username,
-                this.connectionDetails.password,
-                this.connectionDetails.vhost).then(value => {
-                this.queriedList.optionList = value;
-            })
-        },
-        parseConnectionString() {
-            let conn = this.connectionString.replace("http://", "").replace("amqp://", "")
-                .split("/")[0];
-            let tmp = conn.split("@");
-            let uri = tmp[0];
-            if (tmp.length > 1) {
-                let authList = tmp[0].split(":");
-                this.connectionDetails.username = authList[0];
-                this.connectionDetails.password = authList[1];
-                uri = tmp[1]
+        data() {
+            return {
+                options: [
+                    "Record",
+                    "Publish"
+                ],
+                connectionString: "",
+                showAdvanced: false,
             }
-            let uriList = uri.split(":");
-            this.connectionDetails.apiHostName = uriList[0];
-            if (uriList.length > 1) {
-                this.connectionDetails.apiPort = uriList[1];
+        },
+        methods: {
+            queryAllVhosts() {
+                this.$ipc.invoke("queryVhost", {
+                    hostname: this.connectionDetails.apiHostName,
+                    port: this.connectionDetails.apiPort,
+                    username: this.connectionDetails.username,
+                    password: this.connectionDetails.password
+                }).then(value => {
+                    console.log(value)
+                });
+            },
+            queryAllOptions() {
+
+                // queryOptions(this.connectionDetails.apiHostName,
+                //     this.connectionDetails.apiPort,
+                //     this.connectionDetails.username,
+                //     this.connectionDetails.password,
+                //     this.connectionDetails.vhost).then(value => {
+                //     this.queriedList.optionList = value;
+                // })
+            },
+            parseConnectionString() {
+                let conn = this.connectionString.replace("http://", "").replace("amqp://", "")
+                    .split("/")[0];
+                let tmp = conn.split("@");
+                let uri = tmp[0];
+                if (tmp.length > 1) {
+                    let authList = tmp[0].split(":");
+                    this.connectionDetails.username = authList[0];
+                    this.connectionDetails.password = authList[1];
+                    uri = tmp[1]
+                }
+                let uriList = uri.split(":");
                 this.connectionDetails.apiHostName = uriList[0];
-            }
-            this.minimizeConnectionString();
-        },
-        minimizeConnectionString() {
-            if (this.connectionDetails.apiHostName !== "") {
-                this.connectionString = this.connectionDetails.apiHostName;
-                if (this.connectionDetails.apiPort !== "") {
-                    this.connectionString += `:${this.connectionDetails.apiPort}`
+                if (uriList.length > 1) {
+                    this.connectionDetails.apiPort = uriList[1];
+                    this.connectionDetails.apiHostName = uriList[0];
                 }
-            }
-        },
-        constructConnectionString() {
-            if (this.connectionDetails.apiHostName !== "") {
-                this.connectionString = "http://";
-                if (this.connectionDetails.username !== "" && this.connectionDetails.password !== "") {
-                    this.connectionString += `${this.connectionDetails.username}:${this.connectionDetails.password}@`
+                this.minimizeConnectionString();
+            },
+            minimizeConnectionString() {
+                if (this.connectionDetails.apiHostName !== "") {
+                    this.connectionString = this.connectionDetails.apiHostName;
+                    if (this.connectionDetails.apiPort !== "") {
+                        this.connectionString += `:${this.connectionDetails.apiPort}`
+                    }
                 }
-                this.connectionString += this.connectionDetails.apiHostName;
-                if (this.connectionDetails.apiPort !== "") {
-                    this.connectionString += `:${this.connectionDetails.apiPort}`
+            },
+            constructConnectionString() {
+                if (this.connectionDetails.apiHostName !== "") {
+                    this.connectionString = "http://";
+                    if (this.connectionDetails.username !== "" && this.connectionDetails.password !== "") {
+                        this.connectionString += `${this.connectionDetails.username}:${this.connectionDetails.password}@`
+                    }
+                    this.connectionString += this.connectionDetails.apiHostName;
+                    if (this.connectionDetails.apiPort !== "") {
+                        this.connectionString += `:${this.connectionDetails.apiPort}`
+                    }
                 }
-            }
-        },
-        startAction() {
-            // eslint-disable-next-line no-unused-vars
-            const {name, tmpLists, ...sendDetails} = this.$store.getters.getCurrentTab;
+            },
+            startAction() {
+                // eslint-disable-next-line no-unused-vars
+                const {name, tmpLists, ...sendDetails} = this.$store.getters.getCurrentTab;
 
-            this.$ipc.invoke("NewAction", sendDetails).then(value => {
-                console.log(value);
-            });
-        }
-    },
-    computed: {
-        queriedList: {
-            get() {
-                return this.$store.getters.getCurrentTab.tmpLists;
-            },
-            set(value) {
-                this.$store.commit('setTabValue', {key: "tmpLists", value: value})
+                this.$ipc.invoke("NewAction", sendDetails).then(value => {
+                    console.log(value);
+                });
             }
         },
-        connectionDetails: {
-            get() {
-                return this.$store.getters.getCurrentTab.connection;
+        computed: {
+            queriedList: {
+                get() {
+                    return this.$store.getters.getCurrentTab.tmpLists;
+                },
+                set(value) {
+                    this.$store.commit('setTabValue', {key: "tmpLists", value: value})
+                }
             },
-        },
-        actionType: {
-            get() {
-                return this.$store.getters.getCurrentTab['actionType'];
+            connectionDetails: {
+                get() {
+                    return this.$store.getters.getCurrentTab.connection;
+                },
             },
-            set(value) {
-                this.$store.commit('setTabValue', {key: "actionType", value: value});
-                this.$store.commit("changeActionDetails")
+            actionType: {
+                get() {
+                    return this.$store.getters.getCurrentTab['actionType'];
+                },
+                set(value) {
+                    this.$store.commit('setTabValue', {key: "actionType", value: value});
+                    this.$store.commit("changeActionDetails")
+                }
             }
         }
     }
-}
 </script>
 
 <style scoped>
-.connectionClass {
-    width: 100%;
-    border-bottom: 1px solid grey;
-}
+    .connectionClass {
+        width: 100%;
+        border-bottom: 1px solid grey;
+    }
 
-.form-margins {
-    margin: 20px;
-}
+    .form-margins {
+        margin: 20px;
+    }
 
-.span {
-    width: 100% !important;
-}
+    .span {
+        width: 100% !important;
+    }
 
-.space {
-    margin-top: 5px;
-}
+    .space {
+        margin-top: 5px;
+    }
 </style>

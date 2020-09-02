@@ -1,5 +1,6 @@
 import {ConnectionBuilder} from 'electron-cgi'
 import {ipcMain} from 'electron'
+import {queryOptions, queryVHosts} from "./rabbitQuery";
 
 let cgi = undefined;
 
@@ -11,6 +12,10 @@ ipcMain.handle("NewAction", async (event, args) => {
 ipcMain.handle("TerminateAction", async (event, args) => {
     await cgi.send("TerminateAction", args)
 });
+
+ipcMain.handle("queryVhost", async (event, args) => {
+    return await queryVHosts(args['hostname'], args['port'], args['user'], args['password'])
+})
 
 function initComm(isDevelopment) {
     let b = new ConnectionBuilder();
