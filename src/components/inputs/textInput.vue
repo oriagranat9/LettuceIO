@@ -1,6 +1,6 @@
 <template>
     <div class="form-group form-inline ">
-        <label :for="id" class="text-light justify-content-start" style="user-select: none">{{text}}</label>
+        <label :for="id" class="text-light justify-content-start" style="user-select: none; white-space: nowrap">{{text}}</label>
         <input :id="id" :value="value"
                @focus="e => $emit('focus', e)"
                @blur="e => $emit('blur', e)"

@@ -23,7 +23,7 @@
                     },
                     {
                         text: "total size",
-                        inputText: "KB",
+                        inputText: "kb",
                         key: "sizeLimit"
                     },
                     {

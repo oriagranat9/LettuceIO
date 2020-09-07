@@ -20,10 +20,10 @@
                             </div>
                         </div>
                         <div class="row" v-if="showAdvanced">
-                            <div class="col-lg-10" style="margin-top: 5px">
+                            <div class="col-lg-9" style="margin-top: 5px">
                                 <text-input v-model="connectionDetails.amqpHostName" text="AMQP Hostname"/>
                             </div>
-                            <div class="col-md-2">
+                            <div class="col-md-3">
                                 <text-input class="space" v-model="connectionDetails.amqpPort" text="AMQP Port"/>
                             </div>
                         </div>

@@ -2,12 +2,13 @@
     <div class="main-margins">
         <div class="row" v-for="(option, index) in options" v-bind:key="index">
             <div class="col-5 justify-content-start align-self-center">
-                <div class="form-group custom-control custom-checkbox checkbox-align grouped-row align-self-center" style="vertical-align: center">
+                <div class="form-group custom-control custom-checkbox checkbox-align grouped-row align-self-center"
+                     style="vertical-align: center;">
                     <input v-model="value[option.key]['status']" :id="$id('group' + index)" type="checkbox"
                            @input="$emit('input', value)"
                            class="custom-control-input custom-control-input-green">
                     <label :for="$id('group' + index)"
-                           class="custom-control-label text-light checkbox-label">{{option.text}}</label>
+                           class="custom-control-label text-light checkbox-label align-center">{{option.text}}</label>
                 </div>
             </div>
             <div class="col-7 align-self-center justify-content-start">
@@ -41,6 +42,15 @@
 </script>
 
 <style scoped>
+    .align-center {
+        position: relative;
+        transform: translateY(50%);
+    }
+
+    .form-group {
+        margin: 0 !important;
+    }
+
     .grouped-row {
         margin: 0;
     }
