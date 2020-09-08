@@ -40,7 +40,7 @@
                                       text="VHost"/>
                     </div>
                     <div class="col-lg-2 d-flex justify-content-center">
-                        <button style="width: 75%" @click="startAction"
+                        <button style="width: 75%" @click="startAction" v-bind:disabled="isValid"
                                 class="btn btn-dark lettuce-button align-self-center">Start
                         </button>
                     </div>
@@ -80,18 +80,19 @@
                     username: this.connectionDetails.username,
                     password: this.connectionDetails.password
                 }).then(value => {
-                    console.log(value)
+                    this.queriedList.vhosts = value;
                 });
             },
             queryAllOptions() {
-
-                // queryOptions(this.connectionDetails.apiHostName,
-                //     this.connectionDetails.apiPort,
-                //     this.connectionDetails.username,
-                //     this.connectionDetails.password,
-                //     this.connectionDetails.vhost).then(value => {
-                //     this.queriedList.optionList = value;
-                // })
+                this.$ipc.invoke("queryOptions", {
+                    hostname: this.connectionDetails.apiHostName,
+                    port: this.connectionDetails.apiPort,
+                    username: this.connectionDetails.username,
+                    password: this.connectionDetails.password,
+                    vhost: this.connectionDetails.vhost
+                }).then(value => {
+                    this.queriedList.optionList = value;
+                })
             },
             parseConnectionString() {
                 let conn = this.connectionString.replace("http://", "").replace("amqp://", "")
@@ -162,6 +163,17 @@
                 set(value) {
                     this.$store.commit('setTabValue', {key: "actionType", value: value});
                     this.$store.commit("changeActionDetails")
+                }
+            },
+            isValid: {
+                get() {
+                    const tab = this.$store.getters.getCurrentTab;
+                    let isUserValid = tab.connectionDetails.username !== "" && tab.connectionDetails.password;
+                    let isUriValid = tab.connectionDetails.amqpHostName !== "" && tab.connectionDetails.amqpPort !== "";
+                    let isConnectionValid = isUserValid && isUriValid && tab.connectionDetails.vhost !== "";
+                    let isOptionValid = tab.selectedOption.name !== "" && tab.selectedOption.type !== "";
+                    let hasFolderPath = tab.folderPath !== "";
+                    return isConnectionValid && isOptionValid && hasFolderPath;
                 }
             }
         }

@@ -15,7 +15,10 @@ ipcMain.handle("TerminateAction", async (event, args) => {
 
 ipcMain.handle("queryVhost", async (event, args) => {
     return await queryVHosts(args['hostname'], args['port'], args['user'], args['password'])
-})
+});
+ipcMain.handle("queryOptions", async (event, args) => {
+    return await queryOptions(args['hostname'], args['port'], args['user'], args['password'], args['vhost'])
+});
 
 function initComm(isDevelopment) {
     let b = new ConnectionBuilder();

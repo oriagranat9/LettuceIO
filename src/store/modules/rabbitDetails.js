@@ -1,6 +1,6 @@
 import {connectionDetails} from "./connectionDetails";
 import {recordDetails} from './actionDetails'
-import {v4 as uuidv4} from 'uuid';
+import {v4 as uuid4} from 'uuid';
 
 export function getTemplate() {
     let template = {
@@ -9,7 +9,7 @@ export function getTemplate() {
             vhosts: [],
             optionList: []
         },
-        id: uuidv4(),
+        id: uuid4(),
         actionType: "Record",
         folderPath: "",
         selectedOption: {
