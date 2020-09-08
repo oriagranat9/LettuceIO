@@ -9,15 +9,15 @@ ipcMain.handle("NewAction", async (event, args) => {
     cgi.on(id, async (e, a) => event.sender.send(id, a));
     return await cgi.send("NewAction", args);
 });
-ipcMain.handle("TerminateAction", async (event, args) => {
+ipcMain.handle("TerminateAction", async (_, args) => {
     await cgi.send("TerminateAction", args)
 });
 
-ipcMain.handle("queryVhost", async (event, args) => {
-    return await queryVHosts(args['hostname'], args['port'], args['user'], args['password'])
+ipcMain.handle("queryVhost", async (_, args) => {
+    return queryVHosts(args)
 });
-ipcMain.handle("queryOptions", async (event, args) => {
-    return await queryOptions(args['hostname'], args['port'], args['user'], args['password'], args['vhost'])
+ipcMain.handle("queryOptions", async (_, args) => {
+    return await queryOptions(args)
 });
 
 function initComm(isDevelopment) {

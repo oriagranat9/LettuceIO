@@ -81,6 +81,9 @@
                     password: this.connectionDetails.password
                 }).then(value => {
                     this.queriedList.vhosts = value;
+                    if (this.connectionDetails.vhost !== ""){
+                        this.queryAllOptions();
+                    }
                 });
             },
             queryAllOptions() {
@@ -168,9 +171,9 @@
             isValid: {
                 get() {
                     const tab = this.$store.getters.getCurrentTab;
-                    let isUserValid = tab.connectionDetails.username !== "" && tab.connectionDetails.password;
-                    let isUriValid = tab.connectionDetails.amqpHostName !== "" && tab.connectionDetails.amqpPort !== "";
-                    let isConnectionValid = isUserValid && isUriValid && tab.connectionDetails.vhost !== "";
+                    let isUserValid = tab.connection.username !== "" && tab.connection.password;
+                    let isUriValid = tab.connection.amqpHostName !== "" && tab.connectionDetails.amqpPort !== "";
+                    let isConnectionValid = isUserValid && isUriValid && tab.connection.vhost !== "";
                     let isOptionValid = tab.selectedOption.name !== "" && tab.selectedOption.type !== "";
                     let hasFolderPath = tab.folderPath !== "";
                     return isConnectionValid && isOptionValid && hasFolderPath;

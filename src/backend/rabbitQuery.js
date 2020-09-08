@@ -1,12 +1,12 @@
 import axios from 'axios'
 
-async function queryVHosts(hostname, port, username, password) {
+async function queryVHosts({hostname, port, username, password}) {
     let tmp = [];
     if (hostname !== "" && port !== "" && username !== "" && password !== "") {
         let response = await axios.get(getConnString(hostname, port) + "/api/vhosts", {
             auth: {
-                username: username,
-                password: password
+                "username": username,
+                "password": password
             },
             headers: {
                 "Content-Type": "application/json",
@@ -18,13 +18,15 @@ async function queryVHosts(hostname, port, username, password) {
             }
         }
     }
+
     return tmp;
 }
 
-async function queryOptions(hostname, port, username, password, vhost) {
+async function queryOptions({hostname, port, username, password, vhost}) {
     let tmp = [];
     if (hostname !== "" && port !== "" && username !== "" && password !== "" && vhost !== "") {
-        let queueRequest = axios.get(getConnString(hostname, port) + `/api/queues/${vhost}`,{
+        let encodedVhost = encodeURIComponent(vhost)
+        let queueRequest = axios.get(getConnString(hostname, port) + `/api/queues/${encodedVhost}`, {
             auth: {
                 username: username,
                 password: password
@@ -33,7 +35,7 @@ async function queryOptions(hostname, port, username, password, vhost) {
                 "Content-Type": "application/json",
             }
         });
-        let exchangeRequest = axios.get(getConnString(hostname, port, username, password) + `/api/exchanges/${vhost}`,{
+        let exchangeRequest = axios.get(getConnString(hostname, port, username, password) + `/api/exchanges/${encodedVhost}`, {
             auth: {
                 username: username,
                 password: password
@@ -49,18 +51,22 @@ async function queryOptions(hostname, port, username, password, vhost) {
 
         if (queueResponse.status === 200) {
             for (let queue of queueResponse.data) {
-                tmp.push({
-                    type: "Queue",
-                    name: queue['name']
-                })
+                if (queue['name'] !== "") {
+                    tmp.push({
+                        type: "Queue",
+                        name: queue['name']
+                    })
+                }
             }
         }
         if (exchangeResponse.status === 200) {
             for (let exchange of exchangeResponse.data) {
-                tmp.push({
-                    type: "Exchange",
-                    name: exchange['name']
-                })
+                if (exchange['name'] !== "") {
+                    tmp.push({
+                        type: "Exchange",
+                        name: exchange['name']
+                    })
+                }
             }
         }
     }
