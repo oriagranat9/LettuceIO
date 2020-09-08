@@ -40,7 +40,7 @@
                                       text="VHost"/>
                     </div>
                     <div class="col-lg-2 d-flex justify-content-center">
-                        <button style="width: 75%" @click="startAction" v-bind:disabled="isValid"
+                        <button style="width: 75%" @click="startAction" v-bind:disabled="!isValid"
                                 class="btn btn-dark lettuce-button align-self-center">Start
                         </button>
                     </div>
@@ -51,153 +51,155 @@
 </template>
 
 <script>
-    import textInput from "../../inputs/textInput";
-    import selectInput from "../../inputs/selectInput";
-    import checkboxInput from "../../inputs/checkboxInput";
+import textInput from "../../inputs/textInput";
+import selectInput from "../../inputs/selectInput";
+import checkboxInput from "../../inputs/checkboxInput";
 
-    export default {
-        name: "Connection",
-        components: {
-            textInput,
-            selectInput,
-            checkboxInput
-        },
-        data() {
-            return {
-                options: [
-                    "Record",
-                    "Publish"
-                ],
-                connectionString: "",
-                showAdvanced: false,
-            }
-        },
-        methods: {
-            queryAllVhosts() {
-                this.$ipc.invoke("queryVhost", {
-                    hostname: this.connectionDetails.apiHostName,
-                    port: this.connectionDetails.apiPort,
-                    username: this.connectionDetails.username,
-                    password: this.connectionDetails.password
-                }).then(value => {
+export default {
+    name: "Connection",
+    components: {
+        textInput,
+        selectInput,
+        checkboxInput
+    },
+    data() {
+        return {
+            options: [
+                "Record",
+                "Publish"
+            ],
+            connectionString: "",
+            showAdvanced: false,
+        }
+    },
+    methods: {
+        queryAllVhosts() {
+            this.$ipc.invoke("queryVhost", {
+                hostname: this.connectionDetails.apiHostName,
+                port: this.connectionDetails.apiPort,
+                username: this.connectionDetails.username,
+                password: this.connectionDetails.password
+            }).then(value => {
+                if (value.length > 0) {
                     this.queriedList.vhosts = value;
-                    if (this.connectionDetails.vhost !== ""){
+                    if (this.connectionDetails.vhost !== "") {
                         this.queryAllOptions();
                     }
-                });
-            },
-            queryAllOptions() {
-                this.$ipc.invoke("queryOptions", {
-                    hostname: this.connectionDetails.apiHostName,
-                    port: this.connectionDetails.apiPort,
-                    username: this.connectionDetails.username,
-                    password: this.connectionDetails.password,
-                    vhost: this.connectionDetails.vhost
-                }).then(value => {
+                }
+            });
+        },
+        queryAllOptions() {
+            this.$ipc.invoke("queryOptions", {
+                hostname: this.connectionDetails.apiHostName,
+                port: this.connectionDetails.apiPort,
+                username: this.connectionDetails.username,
+                password: this.connectionDetails.password,
+                vhost: this.connectionDetails.vhost
+            }).then(value => {
+                if (value.length > 0) {
                     this.queriedList.optionList = value;
-                })
-            },
-            parseConnectionString() {
-                let conn = this.connectionString.replace("http://", "").replace("amqp://", "")
-                    .split("/")[0];
-                let tmp = conn.split("@");
-                let uri = tmp[0];
-                if (tmp.length > 1) {
-                    let authList = tmp[0].split(":");
-                    this.connectionDetails.username = authList[0];
-                    this.connectionDetails.password = authList[1];
-                    uri = tmp[1]
+                    this.$store.commit('setTabValue', {key: "selectedOption", value: this.queriedList.optionList[0]});
                 }
-                let uriList = uri.split(":");
+            })
+        },
+        parseConnectionString() {
+            let conn = this.connectionString.replace("http://", "").replace("amqp://", "")
+                .split("/")[0];
+            let tmp = conn.split("@");
+            let uri = tmp[0];
+            if (tmp.length > 1) {
+                let authList = tmp[0].split(":");
+                this.connectionDetails.username = authList[0];
+                this.connectionDetails.password = authList[1];
+                uri = tmp[1]
+            }
+            let uriList = uri.split(":");
+            this.connectionDetails.apiHostName = uriList[0];
+            if (uriList.length > 1) {
+                this.connectionDetails.apiPort = uriList[1];
                 this.connectionDetails.apiHostName = uriList[0];
-                if (uriList.length > 1) {
-                    this.connectionDetails.apiPort = uriList[1];
-                    this.connectionDetails.apiHostName = uriList[0];
-                }
-                this.minimizeConnectionString();
-            },
-            minimizeConnectionString() {
-                if (this.connectionDetails.apiHostName !== "") {
-                    this.connectionString = this.connectionDetails.apiHostName;
-                    if (this.connectionDetails.apiPort !== "") {
-                        this.connectionString += `:${this.connectionDetails.apiPort}`
-                    }
-                }
-            },
-            constructConnectionString() {
-                if (this.connectionDetails.apiHostName !== "") {
-                    this.connectionString = "http://";
-                    if (this.connectionDetails.username !== "" && this.connectionDetails.password !== "") {
-                        this.connectionString += `${this.connectionDetails.username}:${this.connectionDetails.password}@`
-                    }
-                    this.connectionString += this.connectionDetails.apiHostName;
-                    if (this.connectionDetails.apiPort !== "") {
-                        this.connectionString += `:${this.connectionDetails.apiPort}`
-                    }
-                }
-            },
-            startAction() {
-                // eslint-disable-next-line no-unused-vars
-                const {name, tmpLists, ...sendDetails} = this.$store.getters.getCurrentTab;
-
-                this.$ipc.invoke("NewAction", sendDetails).then(value => {
-                    console.log(value);
-                });
+            }
+            this.minimizeConnectionString();
+        },
+        minimizeConnectionString() {
+            if (this.connectionDetails.apiHostName !== "") {
+                this.connectionString = this.connectionDetails.apiHostName;
             }
         },
-        computed: {
-            queriedList: {
-                get() {
-                    return this.$store.getters.getCurrentTab.tmpLists;
-                },
-                set(value) {
-                    this.$store.commit('setTabValue', {key: "tmpLists", value: value})
+        constructConnectionString() {
+            if (this.connectionDetails.apiHostName !== "") {
+                this.connectionString = "http://";
+                if (this.connectionDetails.username !== "" && this.connectionDetails.password !== "") {
+                    this.connectionString += `${this.connectionDetails.username}:${this.connectionDetails.password}@`
                 }
-            },
-            connectionDetails: {
-                get() {
-                    return this.$store.getters.getCurrentTab.connection;
-                },
-            },
-            actionType: {
-                get() {
-                    return this.$store.getters.getCurrentTab['actionType'];
-                },
-                set(value) {
-                    this.$store.commit('setTabValue', {key: "actionType", value: value});
-                    this.$store.commit("changeActionDetails")
+                this.connectionString += this.connectionDetails.apiHostName;
+                if (this.connectionDetails.apiPort !== "") {
+                    this.connectionString += `:${this.connectionDetails.apiPort}`
                 }
+            }
+        },
+        startAction() {
+            // eslint-disable-next-line no-unused-vars
+            const {name, tmpLists, ...sendDetails} = this.$store.getters.getCurrentTab;
+
+            this.$ipc.invoke("NewAction", sendDetails).then(value => {
+                console.log(value);
+            });
+        }
+    },
+    computed: {
+        queriedList: {
+            get() {
+                return this.$store.getters.getCurrentTab.tmpLists;
             },
-            isValid: {
-                get() {
-                    const tab = this.$store.getters.getCurrentTab;
-                    let isUserValid = tab.connection.username !== "" && tab.connection.password;
-                    let isUriValid = tab.connection.amqpHostName !== "" && tab.connectionDetails.amqpPort !== "";
-                    let isConnectionValid = isUserValid && isUriValid && tab.connection.vhost !== "";
-                    let isOptionValid = tab.selectedOption.name !== "" && tab.selectedOption.type !== "";
-                    let hasFolderPath = tab.folderPath !== "";
-                    return isConnectionValid && isOptionValid && hasFolderPath;
-                }
+            set(value) {
+                this.$store.commit('setTabValue', {key: "tmpLists", value: value})
+            }
+        },
+        connectionDetails: {
+            get() {
+                return this.$store.getters.getCurrentTab.connection;
+            },
+        },
+        actionType: {
+            get() {
+                return this.$store.getters.getCurrentTab['actionType'];
+            },
+            set(value) {
+                this.$store.commit('setTabValue', {key: "actionType", value: value});
+                this.$store.commit("changeActionDetails")
+            }
+        },
+        isValid: {
+            get() {
+                const tab = this.$store.getters.getCurrentTab;
+                let isUserValid = tab.connection.username !== "" && tab.connection.password;
+                let isUriValid = tab.connection.amqpHostName !== "" && tab.connectionDetails.amqpPort !== "";
+                let isConnectionValid = isUserValid && isUriValid && tab.connection.vhost !== "";
+                let isOptionValid = tab.selectedOption.name !== "" && tab.selectedOption.type !== "";
+                let hasFolderPath = tab.folderPath !== "";
+                return isConnectionValid && isOptionValid && hasFolderPath;
             }
         }
     }
+}
 </script>
 
 <style scoped>
-    .connectionClass {
-        width: 100%;
-        border-bottom: 1px solid grey;
-    }
+.connectionClass {
+    width: 100%;
+    border-bottom: 1px solid grey;
+}
 
-    .form-margins {
-        margin: 20px;
-    }
+.form-margins {
+    margin: 20px;
+}
 
-    .span {
-        width: 100% !important;
-    }
+.span {
+    width: 100% !important;
+}
 
-    .space {
-        margin-top: 5px;
-    }
+.space {
+    margin-top: 5px;
+}
 </style>
