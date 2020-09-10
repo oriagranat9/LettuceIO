@@ -1,5 +1,35 @@
 import axios from 'axios'
 
+async function queryPort({hostname, port, username, password}) {
+    if (hostname !== "" && port !== "" && username !== "" && password !== "") {
+        let response = await axios.get(getConnString(hostname, port) + "/api/overview", {
+            auth: {
+                username: username,
+                password: password
+            },
+            headers: {
+                "Content-Type": "application/json"
+            }
+        });
+        if (response.status === 200) {
+            for (let node of response.data["listeners"]) {
+                if (node["protocol"] === "amqp" && node["ip_address"] === "0.0.0.0") {
+                    // try's to get amqp port from the amqp listener
+                    return {
+                        hostname: hostname,
+                        port: node["port"]
+                    }
+                }
+            }
+            return {
+                // if no listener set the hostname and leave the port empty as we cannot discover it
+                hostname: hostname,
+                port: ""
+            }
+        }
+    }
+}
+
 async function queryVHosts({hostname, port, username, password}) {
     let tmp = [];
     if (hostname !== "" && port !== "" && username !== "" && password !== "") {
@@ -77,4 +107,4 @@ function getConnString(hostname, port) {
     return `http://${hostname}:${port}`
 }
 
-export {queryVHosts, queryOptions}
+export {queryVHosts, queryOptions, queryPort}

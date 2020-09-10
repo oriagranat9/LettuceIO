@@ -1,6 +1,6 @@
-import {ConnectionBuilder} from 'electron-cgi'
-import {ipcMain} from 'electron'
-import {queryOptions, queryVHosts} from "./rabbitQuery";
+import {ConnectionBuilder} from 'electron-cgi';
+import {ipcMain} from 'electron';
+import {queryOptions, queryVHosts, queryPort} from "./rabbitQuery";
 
 let cgi = undefined;
 
@@ -18,6 +18,10 @@ ipcMain.handle("queryVhost", async (_, args) => {
 });
 ipcMain.handle("queryOptions", async (_, args) => {
     return await queryOptions(args)
+});
+
+ipcMain.handle("queryPort", async (_, args) => {
+    return await queryPort(args);
 });
 
 function initComm(isDevelopment) {
