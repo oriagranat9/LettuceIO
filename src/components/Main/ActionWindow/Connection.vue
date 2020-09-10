@@ -174,7 +174,7 @@ export default {
             get() {
                 const tab = this.$store.getters.getCurrentTab;
                 let isUserValid = tab.connection.username !== "" && tab.connection.password;
-                let isUriValid = tab.connection.amqpHostName !== "" && tab.connectionDetails.amqpPort !== "";
+                let isUriValid = tab.connection.amqpHostName !== "" && tab.connection.amqpPort !== "";
                 let isConnectionValid = isUserValid && isUriValid && tab.connection.vhost !== "";
                 let isOptionValid = tab.selectedOption.name !== "" && tab.selectedOption.type !== "";
                 let hasFolderPath = tab.folderPath !== "";

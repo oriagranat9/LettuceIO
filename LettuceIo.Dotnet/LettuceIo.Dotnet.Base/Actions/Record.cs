@@ -5,6 +5,7 @@ using System.IO;
 using System.Reactive;
 using System.Reactive.Linq;
 using System.Reactive.Subjects;
+using System.Runtime.CompilerServices;
 using LettuceIo.Dotnet.Base.Extensions;
 using LettuceIo.Dotnet.Core;
 using Newtonsoft.Json;
@@ -78,9 +79,10 @@ namespace LettuceIo.Dotnet.Base.Actions
 
         private void OnMessage(Message message)
         {
-            var name = _queue + DateTime.Now.ToString(CultureInfo.InvariantCulture);
-            var task = File.WriteAllTextAsync(Path.Join(_folderPath, name),
-                JsonConvert.SerializeObject(message, _serializerSettings));
+            var name = $"{_queue} {DateTime.Now:dd-MM-yyy HH-mm-ss-fff}.json";
+            var path = Path.Combine(_folderPath, name);
+            //TODO message save as base 64 string ?
+            var task = File.WriteAllTextAsync(path, JsonConvert.SerializeObject(message, Formatting.Indented));
             _currentMetrics.Duration = _stopwatch.Elapsed;
             _currentMetrics.Count++;
             _currentMetrics.SizeKB += message.SizeKB();
