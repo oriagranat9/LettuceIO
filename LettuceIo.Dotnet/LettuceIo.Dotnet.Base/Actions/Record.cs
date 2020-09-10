@@ -82,7 +82,7 @@ namespace LettuceIo.Dotnet.Base.Actions
             var name = $"{_queue} {DateTime.Now:dd-MM-yyy HH-mm-ss-fff}.json";
             var path = Path.Combine(_folderPath, name);
             //TODO message save as base 64 string ?
-            var task = File.WriteAllTextAsync(path, JsonConvert.SerializeObject(message, Formatting.Indented));
+            var task = File.WriteAllTextAsync(path, JsonConvert.SerializeObject(message, _serializerSettings));
             _currentMetrics.Duration = _stopwatch.Elapsed;
             _currentMetrics.Count++;
             _currentMetrics.SizeKB += message.SizeKB();
