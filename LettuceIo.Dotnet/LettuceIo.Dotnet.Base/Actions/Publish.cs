@@ -1,9 +1,12 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
+using System.IO;
 using System.Reactive.Subjects;
 using System.Threading;
 using System.Threading.Tasks;
 using LettuceIo.Dotnet.Core;
+using Newtonsoft.Json;
 using RabbitMQ.Client;
 
 namespace LettuceIo.Dotnet.Base.Actions
@@ -24,13 +27,19 @@ namespace LettuceIo.Dotnet.Base.Actions
         private CancellationTokenSource _cts = new CancellationTokenSource();
 
         public Publish(IConnectionFactory connectionFactory, Limits limits, string exchange,
-            IReadOnlyCollection<Message> messages, PublishOptions options)
+            String folderPath, PublishOptions options, JsonSerializerSettings serializerSettings)
         {
             _connectionFactory = connectionFactory;
             _limits = limits;
             _exchange = exchange;
-            _messages = messages;
             _options = options;
+            var collection = new Collection<Message>();
+            foreach (string file in Directory.EnumerateFiles(folderPath, "*.json"))
+            {
+                collection.Add(JsonConvert.DeserializeObject<Message>(file, serializerSettings));
+            }
+
+            _messages = collection;
         }
 
         public void Start()
@@ -42,7 +51,7 @@ namespace LettuceIo.Dotnet.Base.Actions
             IEnumerable<Message> messages = _messages;
             if (_options.Shuffle) messages = messages.Shuffle();
             if (_options.Loop) messages = messages.Loop();
-             
+
             if (_options.Playback)
                 Task.Run(() =>
                 {
