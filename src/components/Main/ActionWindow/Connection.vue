@@ -161,8 +161,13 @@
                 // eslint-disable-next-line no-unused-vars
                 const {name, tmpLists, ...sendDetails} = this.$store.getters.getCurrentTab;
 
-                this.$ipc.invoke("NewAction", sendDetails).then(value => {
-                    console.log(value);
+                this.$ipc.invoke("NewAction", sendDetails).then(state => {
+                    if (state) {
+                        this.$ipc.on(sendDetails['id'], (event, message) => {
+                            console.log(`- ${message}`);
+                            this.$store.getters.getCurrentTab['status'] = message;
+                        })
+                    }
                 });
             }
         },

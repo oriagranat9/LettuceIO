@@ -6,8 +6,16 @@ let cgi = undefined;
 
 ipcMain.handle("NewAction", async (event, args) => {
     let id = args["id"];
-    cgi.on(id, async (e, a) => event.sender.send(id, a));
-    return await cgi.send("NewAction", args);
+    try {
+        let response = await cgi.send("NewAction", args);
+        if (response) {
+            cgi.on(id, async (e, a) => event.sender.send(id, a));
+        }
+        return true;
+    } catch (e) {
+        return false;
+    }
+
 });
 ipcMain.handle("TerminateAction", async (_, args) => {
     await cgi.send("TerminateAction", args)

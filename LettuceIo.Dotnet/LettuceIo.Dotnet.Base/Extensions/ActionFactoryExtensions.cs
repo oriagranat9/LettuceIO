@@ -15,6 +15,11 @@ namespace LettuceIo.Dotnet.Base.Extensions
             f.ConfigureEntities(details["selectedOption"]);
             f.ConnectionFactory = ToConnectionFactory(details["connection"]);
             f.Limits = ToLimits(details["actionDetails"]);
+            if (f.ActionType == ActionType.Publish)
+            {
+                f.PublishOptions = ToPublishOptions(details["actionDetails"]);
+            }
+
             return f;
         }
 
@@ -52,6 +57,13 @@ namespace LettuceIo.Dotnet.Base.Extensions
                 ? (TimeSpan?) TimeSpan.FromSeconds(details["timeLimit"]!
                     .Value<double>("value"))
                 : null
+        };
+
+        public static PublishOptions ToPublishOptions(JToken details) => new PublishOptions
+        {
+            Loop = details.Value<bool>("isLoop"),
+            Playback = details.Value<bool>("playback"),
+            Shuffle = details.Value<bool>("isShuffle"),
         };
     }
 }

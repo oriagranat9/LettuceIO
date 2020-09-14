@@ -15,6 +15,7 @@ namespace LettuceIo.Dotnet.Base
         public string Exchange;
         public IConnectionFactory ConnectionFactory;
         public Limits Limits = new Limits();
+        public PublishOptions PublishOptions;
 
         public JsonSerializerSettings SerializerSettings = new JsonSerializerSettings()
         {
@@ -24,7 +25,7 @@ namespace LettuceIo.Dotnet.Base
         public IAction Build() => ActionType switch
         {
             ActionType.Record => new Record(ConnectionFactory, Limits, Queue, FolderPath, SerializerSettings),
-            ActionType.Publish => new Publish(ConnectionFactory, Limits, Exchange, FolderPath, new PublishOptions(),
+            ActionType.Publish => new Publish(ConnectionFactory, Limits, Exchange, FolderPath, PublishOptions,
                 SerializerSettings),
             _ => throw new NotSupportedException($"Action \"{ActionType}\" is not supported")
         };

@@ -17,12 +17,12 @@ namespace LettuceIo.Dotnet.ConsoleHost
 
         private static void Main()
         {
-            Connection.On<JToken>("NewAction", NewAction);
+            Connection.On<JToken, bool>("NewAction", NewAction);
             Connection.On<string>("TerminateAction", TerminateAction);
             Connection.Listen();
         }
 
-        private static void NewAction(JToken settings)
+        private static bool NewAction(JToken settings)
         {
             var id = settings.Value<string>("id");
             if (ActiveActions.ContainsKey(id)) 
@@ -33,6 +33,7 @@ namespace LettuceIo.Dotnet.ConsoleHost
                 throw new Exception($"Key \"{id}\" already exists in the dictionary");
             action.Stats.Subscribe(stats => Connection.Send(id, JObject.FromObject(stats)));
             action.Start();
+            return true;
         }
 
         private static void TerminateAction(string id)
