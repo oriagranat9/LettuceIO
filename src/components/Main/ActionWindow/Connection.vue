@@ -194,7 +194,7 @@
             terminateAction() {
                 const self = this;
                 const id = this.$store.getters.getCurrentTab['id'];
-                this.$ipc.invoke("", id).then(state => {
+                this.$ipc.invoke("TerminateAction", id).then(state => {
                     if (state) {
                         self.$ipc.removeAllListeners(id);
                     }
