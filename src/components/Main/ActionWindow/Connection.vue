@@ -172,7 +172,7 @@
                         self.$ipc.on(sendDetails['id'], (event, message) => {
                             for (let key in message) {
                                 if (Object.prototype.hasOwnProperty.call(message, key)) {
-                                    selectedTab['status'][key] = message['key']
+                                    this.$set(selectedTab['status'], key, message[key])
                                 }
                             }
                         })

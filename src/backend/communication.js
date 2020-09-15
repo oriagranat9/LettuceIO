@@ -9,7 +9,7 @@ ipcMain.handle("NewAction", async (event, args) => {
     try {
         let response = await cgi.send("NewAction", args);
         if (response) {
-            cgi.on(id, async (e, a) => event.sender.send(id, a));
+            cgi.on(id, async (message) => event.sender.send(id, message));
         }
         return true;
     } catch (e) {
