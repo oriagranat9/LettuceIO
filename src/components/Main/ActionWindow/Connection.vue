@@ -43,8 +43,9 @@
                                       text="VHost"/>
                     </div>
                     <div class="col-lg-2 d-flex justify-content-center">
-                        <button style="width: 75%" @click="startAction" v-bind:disabled="!isValid"
-                                class="btn btn-dark lettuce-button align-self-center">Start
+                        <button style="width: 75%" @click="Action" v-bind:disabled="!isValid"
+                                class="btn btn-dark lettuce-button align-self-center">
+                            {{$store.getters.getCurrentTab.status['isActive'] ? "stop" : "start"}}
                         </button>
                     </div>
                 </div>
@@ -157,6 +158,13 @@
                     }
                 }
             },
+            Action() {
+                if (!this.$store.getters.getCurrentTab.status.isActive) {
+                    this.startAction();
+                } else {
+                    this.terminateAction();
+                }
+            },
             startAction() {
                 const self = this;
                 // eslint-disable-next-line no-unused-vars
@@ -175,10 +183,22 @@
                                     this.$set(selectedTab['status'], key, message[key])
                                 }
                             }
+                            if (!selectedTab['status']['isActive']) {
+                                self.$ipc.removeAllListeners(sendDetails['id']);
+                            }
                         })
                     }
-                    //   TODO: what happens if task wasn't successful?
+                    //   TODO: what happens if task start wasn't successful?
                 });
+            },
+            terminateAction() {
+                const self = this;
+                const id = this.$store.getters.getCurrentTab['id'];
+                this.$ipc.invoke("", id).then(state => {
+                    if (state) {
+                        self.$ipc.removeAllListeners(id);
+                    }
+                })
             }
         },
         computed: {

@@ -17,8 +17,13 @@ ipcMain.handle("NewAction", async (event, args) => {
     }
 
 });
-ipcMain.handle("TerminateAction", async (_, args) => {
-    await cgi.send("TerminateAction", args)
+ipcMain.handle("TerminateAction", async (_, id) => {
+    try {
+        await cgi.send("TerminateAction", id);
+        return true
+    } catch (e) {
+        return false
+    }
 });
 
 ipcMain.handle("queryVhost", async (_, args) => {

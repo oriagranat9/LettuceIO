@@ -11,7 +11,6 @@
                 <select-input v-model="selectedOption" :options="optionList" :text="selectName" style="margin: 0"/>
             </div>
         </div>
-        <h4 class="text-light">{{$store.getters.getCurrentTab['status']}}</h4>
     </div>
 </template>
 
@@ -20,7 +19,9 @@
 
     export default {
         name: "Settings",
-        components: {SelectInput},
+        components: {
+            SelectInput
+        },
         data() {
             return {}
         },
