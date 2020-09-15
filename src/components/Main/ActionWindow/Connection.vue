@@ -158,16 +158,26 @@
                 }
             },
             startAction() {
+                const self = this;
                 // eslint-disable-next-line no-unused-vars
-                const {name, tmpLists, ...sendDetails} = this.$store.getters.getCurrentTab;
-
+                const {name, tmpLists, status, ...sendDetails} = this.$store.getters.getCurrentTab;
+                const selectedTab = this.$store.getters.getCurrentTab;
                 this.$ipc.invoke("NewAction", sendDetails).then(state => {
                     if (state) {
-                        this.$ipc.on(sendDetails['id'], (event, message) => {
-                            console.log(`- ${message}`);
-                            this.$store.getters.getCurrentTab['status'] = message;
+                        //setting up the status as running
+                        selectedTab['status'] = {
+                            isActive: true
+                        };
+
+                        self.$ipc.on(sendDetails['id'], (event, message) => {
+                            for (let key in message) {
+                                if (Object.prototype.hasOwnProperty.call(message, key)) {
+                                    selectedTab['status'][key] = message['key']
+                                }
+                            }
                         })
                     }
+                    //   TODO: what happens if task wasn't successful?
                 });
             }
         },

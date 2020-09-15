@@ -13,7 +13,7 @@ export default {
             syncRoute(state);
         },
         changeTabIndex(state, index) {
-            state.selectedTabIndex = index
+            state.selectedTabIndex = index;
             syncRoute(state);
         },
         deleteTab(state, index) {
@@ -40,7 +40,7 @@ export default {
                     currentTab.actionDetails = {...publishDetails};
                     break;
             }
-        }
+        },
     },
     getters: {
         getTabIndex(state) {
