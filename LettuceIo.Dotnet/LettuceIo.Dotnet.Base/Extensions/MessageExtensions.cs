@@ -1,4 +1,4 @@
-﻿using LettuceIo.Dotnet.Core;
+﻿using LettuceIo.Dotnet.Core.Structs;
 
 namespace LettuceIo.Dotnet.Base.Extensions
 {

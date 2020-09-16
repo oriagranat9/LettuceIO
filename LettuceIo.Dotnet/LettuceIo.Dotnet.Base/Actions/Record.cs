@@ -1,13 +1,13 @@
 ﻿using System;
 using System.Diagnostics;
-using System.Globalization;
 using System.IO;
 using System.Reactive;
 using System.Reactive.Linq;
 using System.Reactive.Subjects;
-using System.Runtime.CompilerServices;
 using LettuceIo.Dotnet.Base.Extensions;
-using LettuceIo.Dotnet.Core;
+using LettuceIo.Dotnet.Core.Enums;
+using LettuceIo.Dotnet.Core.Interfaces;
+using LettuceIo.Dotnet.Core.Structs;
 using Newtonsoft.Json;
 using RabbitMQ.Client;
 using RabbitMQ.Client.Events;
@@ -16,6 +16,7 @@ namespace LettuceIo.Dotnet.Base.Actions
 {
     public class Record : IAction
     {
+        public Status Status { get; private set; } = Status.Pending;
         public IObservable<ActionMetrics> Stats => _statsSubject;
 
         #region fields
@@ -27,7 +28,6 @@ namespace LettuceIo.Dotnet.Base.Actions
         private readonly JsonSerializerSettings _serializerSettings;
         private IModel? _channel;
         private ActionMetrics _currentMetrics;
-        private bool _started;
         private readonly ISubject<ActionMetrics> _statsSubject = new Subject<ActionMetrics>();
         private readonly Stopwatch _stopwatch = new Stopwatch();
         private string? _consumerTag;
@@ -49,8 +49,8 @@ namespace LettuceIo.Dotnet.Base.Actions
 
         public void Start()
         {
-            if (_started) throw new InvalidOperationException("The action was started already");
-            _started = true;
+            if (Status != Status.Pending) throw new InvalidOperationException("The action was started already");
+            Status = Status.Running;
             _channel = _connectionFactory.CreateConnection().CreateModel();
             var consumer = new EventingBasicConsumer(_channel);
             _subscription = Observable.FromEventPattern<BasicDeliverEventArgs>(handler => consumer.Received += handler,
@@ -71,6 +71,8 @@ namespace LettuceIo.Dotnet.Base.Actions
 
         public void Stop()
         {
+            if (Status != Status.Running) throw new InvalidOperationException("The action is not running");
+            Status = Status.Stopped;
             _subscription?.Dispose();
             _timerSubscription?.Dispose();
             _statsSubject.OnCompleted();
@@ -79,7 +81,7 @@ namespace LettuceIo.Dotnet.Base.Actions
 
         private void OnMessage(Message message)
         {
-            var name = $"{_queue} {DateTime.Now:dd-MM-yyy HH-mm-ss-fff}.json";
+            var name = $"{_queue}_{DateTime.Now:dd-MM-yyy HH-mm-ss-fff}.json";
             var path = Path.Combine(_folderPath, name);
             //TODO message save as base 64 string ?
             var task = File.WriteAllTextAsync(path, JsonConvert.SerializeObject(message, _serializerSettings));

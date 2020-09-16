@@ -1,4 +1,4 @@
-﻿namespace LettuceIo.Dotnet.Core
+﻿namespace LettuceIo.Dotnet.Core.Interfaces
 {
     public interface INameProvider
     {

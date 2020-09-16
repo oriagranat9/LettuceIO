@@ -1,11 +1,14 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Collections.ObjectModel;
 using System.IO;
+using System.Linq;
 using System.Reactive.Subjects;
 using System.Threading;
 using System.Threading.Tasks;
-using LettuceIo.Dotnet.Core;
+using LettuceIo.Dotnet.Base.Extensions;
+using LettuceIo.Dotnet.Core.Enums;
+using LettuceIo.Dotnet.Core.Interfaces;
+using LettuceIo.Dotnet.Core.Structs;
 using Newtonsoft.Json;
 using RabbitMQ.Client;
 
@@ -18,34 +21,31 @@ namespace LettuceIo.Dotnet.Base.Actions
         private readonly string _exchange;
         private readonly IReadOnlyCollection<Message> _messages;
         private readonly PublishOptions _options;
+        public Status Status { get; private set; } = Status.Pending;
         public IObservable<ActionMetrics> Stats => _statsSubject;
         private readonly ISubject<ActionMetrics> _statsSubject = new Subject<ActionMetrics>();
-        private bool _started;
         private IModel? _channel;
         private Random _random = new Random();
         private bool _stop;
-        private CancellationTokenSource _cts = new CancellationTokenSource();
+        private readonly CancellationTokenSource _cts = new CancellationTokenSource();
 
         public Publish(IConnectionFactory connectionFactory, Limits limits, string exchange,
-            String folderPath, PublishOptions options, JsonSerializerSettings serializerSettings)
+            string folderPath, PublishOptions options, JsonSerializerSettings serializerSettings)
         {
             _connectionFactory = connectionFactory;
             _limits = limits;
             _exchange = exchange;
             _options = options;
-            var collection = new Collection<Message>();
-            foreach (string file in Directory.EnumerateFiles(folderPath, "*.json"))
-            {
-                collection.Add(JsonConvert.DeserializeObject<Message>(file, serializerSettings));
-            }
-
-            _messages = collection;
+            _messages = Directory.EnumerateFiles(folderPath, "*.json")
+                .Select(File.ReadAllText)
+                .Select(text => JsonConvert.DeserializeObject<Message>(text, serializerSettings))
+                .ToArray() as Message[] ?? throw new ArgumentException("No messages in directory");
         }
 
         public void Start()
         {
-            if (_started) throw new InvalidOperationException("The action was started already");
-            _started = true;
+            if (Status != Status.Pending) throw new InvalidOperationException("The action was started already");
+            Status = Status.Running;
             _channel = _connectionFactory.CreateConnection().CreateModel();
 
             IEnumerable<Message> messages = _messages;
@@ -70,7 +70,8 @@ namespace LettuceIo.Dotnet.Base.Actions
 
         public void Stop()
         {
-            _stop = true;
+            if (Status != Status.Running) throw new InvalidOperationException("The action is not running");
+            Status = Status.Stopped;
             _cts.Cancel();
         }
 

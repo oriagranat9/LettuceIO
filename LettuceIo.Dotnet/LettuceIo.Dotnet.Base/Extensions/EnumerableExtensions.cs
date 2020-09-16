@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 
-namespace LettuceIo.Dotnet.Base
+namespace LettuceIo.Dotnet.Base.Extensions
 {
     public static class EnumerableExtensions
     {

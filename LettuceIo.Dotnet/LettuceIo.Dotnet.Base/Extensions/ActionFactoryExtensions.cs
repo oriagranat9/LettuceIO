@@ -1,6 +1,6 @@
 ﻿using System;
-using LettuceIo.Dotnet.Core;
 using LettuceIo.Dotnet.Core.Enums;
+using LettuceIo.Dotnet.Core.Structs;
 using Newtonsoft.Json.Linq;
 using RabbitMQ.Client;
 

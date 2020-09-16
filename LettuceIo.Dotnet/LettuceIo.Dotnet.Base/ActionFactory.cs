@@ -1,7 +1,8 @@
 ﻿using System;
 using LettuceIo.Dotnet.Base.Actions;
-using LettuceIo.Dotnet.Core;
 using LettuceIo.Dotnet.Core.Enums;
+using LettuceIo.Dotnet.Core.Interfaces;
+using LettuceIo.Dotnet.Core.Structs;
 using Newtonsoft.Json;
 using RabbitMQ.Client;
 
