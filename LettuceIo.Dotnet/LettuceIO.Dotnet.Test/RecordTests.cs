@@ -1,6 +1,7 @@
 using System.IO;
 using LettuceIo.Dotnet.Base.Actions;
 using LettuceIo.Dotnet.Core;
+using LettuceIo.Dotnet.Core.Structs;
 using Newtonsoft.Json;
 using NUnit.Framework;
 using RabbitMQ.Client;

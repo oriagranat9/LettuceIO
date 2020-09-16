@@ -3,7 +3,7 @@ using System.Collections.Concurrent;
 using ElectronCgi.DotNet;
 using LettuceIo.Dotnet.Base;
 using LettuceIo.Dotnet.Base.Extensions;
-using LettuceIo.Dotnet.Core;
+using LettuceIo.Dotnet.Core.Interfaces;
 using Newtonsoft.Json.Linq;
 
 namespace LettuceIo.Dotnet.ConsoleHost

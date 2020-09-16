@@ -1,6 +1,6 @@
 ﻿using System;
 using System.Reactive.Linq;
-using LettuceIo.Dotnet.Core;
+using LettuceIo.Dotnet.Core.Structs;
 
 namespace LettuceIo.Dotnet.Base.Extensions
 {
