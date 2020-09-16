@@ -32,7 +32,7 @@ namespace LettuceIo.Dotnet.ConsoleHost
             if (!ActiveActions.TryAdd(id, action))
                 throw new Exception($"Key \"{id}\" already exists in the dictionary");
             action.Stats.Subscribe(stats => Connection.Send(id, JObject.FromObject(stats)),
-                onCompleted => Connection.Send(id, new JObject()["isActive"] = false));
+                onCompleted: () => Connection.Send(id, new JObject()["isActive"] = false));
             action.Start();
             return true;
         }
