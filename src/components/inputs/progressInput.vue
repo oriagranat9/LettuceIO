@@ -1,21 +1,25 @@
 <template>
-    <div class="progress progressStyle" style="height: 8px">
-        <div class="progress-bar innerProgressStyle" role="progressbar" v-bind:style="`width:${value}%`" aria-valuemin="0" aria-valuemax="100"
-             :aria-valuenow="value"></div>
+    <div class="progress progressStyle"
+         v-bind:style="disabled ? 'background-color: var(--bg-primary);' : 'background-color: var(--bg-tertiary);'"
+         style="height: 4px">
+        <div class="progress-bar innerProgressStyle" role="progressbar" v-bind:style="`width:${disabled ? 0 : value}%`"
+             aria-valuemin="0" aria-valuemax="100"
+             :aria-valuenow="disabled ? 0 : value"></div>
     </div>
 </template>
 
 <script>
     export default {
         name: "progressInput",
-        props: ['value']
+        props: ['value', 'disabled']
     }
 </script>
 
 <style scoped>
-    .progressStyle{
-        background-color: var(--bg-tertiary);
+    .progressStyle {
+        margin-top: 8px;
     }
+
     .innerProgressStyle {
         background-color: var(--brand-secondary)
     }

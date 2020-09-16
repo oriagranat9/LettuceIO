@@ -50,7 +50,7 @@
                 this.$store.commit('changeTabIndex', index)
             },
             deleteTab(index) {
-                this.$store.commit('deleteTab', index)
+                this.$emit("delete", index)
             },
             createTab() {
                 this.$store.commit('createTab')

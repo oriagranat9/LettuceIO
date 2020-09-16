@@ -43,7 +43,7 @@
                                       text="VHost"/>
                     </div>
                     <div class="col-lg-2 d-flex justify-content-center">
-                        <button style="width: 75%" @click="Action" v-bind:disabled="!isValid"
+                        <button style="width: 75%" @click="$emit('action')" v-bind:disabled="!isValid"
                                 class="btn btn-dark lettuce-button align-self-center">
                             {{$store.getters.getCurrentTab.status['isActive'] ? "stop" : "start"}}
                         </button>
@@ -157,48 +157,6 @@
                         this.connectionString += `:${this.connectionDetails.apiPort}`
                     }
                 }
-            },
-            Action() {
-                if (!this.$store.getters.getCurrentTab.status.isActive) {
-                    this.startAction();
-                } else {
-                    this.terminateAction();
-                }
-            },
-            startAction() {
-                const self = this;
-                // eslint-disable-next-line no-unused-vars
-                const {name, tmpLists, status, ...sendDetails} = this.$store.getters.getCurrentTab;
-                const selectedTab = this.$store.getters.getCurrentTab;
-                this.$ipc.invoke("NewAction", sendDetails).then(state => {
-                    if (state) {
-                        //setting up the status as running
-                        selectedTab['status'] = {
-                            isActive: true
-                        };
-
-                        self.$ipc.on(sendDetails['id'], (event, message) => {
-                            for (let key in message) {
-                                if (Object.prototype.hasOwnProperty.call(message, key)) {
-                                    this.$set(selectedTab['status'], key, message[key])
-                                }
-                            }
-                            if (!selectedTab['status']['isActive']) {
-                                self.$ipc.removeAllListeners(sendDetails['id']);
-                            }
-                        })
-                    }
-                    //   TODO: what happens if task start wasn't successful?
-                });
-            },
-            terminateAction() {
-                const self = this;
-                const id = this.$store.getters.getCurrentTab['id'];
-                this.$ipc.invoke("TerminateAction", id).then(state => {
-                    if (state) {
-                        self.$ipc.removeAllListeners(id);
-                    }
-                })
             }
         },
         computed: {
