@@ -27,7 +27,7 @@ namespace LettuceIo.Dotnet.Base.Actions
         private readonly string _folderPath;
         private readonly JsonSerializerSettings _serializerSettings;
         private IModel? _channel;
-        private ActionMetrics _currentMetrics;
+        private ActionMetrics _currentMetrics = new ActionMetrics {Count = 0, Duration = TimeSpan.Zero, SizeKB = 0d};
         private readonly ISubject<ActionMetrics> _statsSubject = new Subject<ActionMetrics>();
         private readonly Stopwatch _stopwatch = new Stopwatch();
         private string? _consumerTag;
@@ -65,7 +65,6 @@ namespace LettuceIo.Dotnet.Base.Actions
                 _currentMetrics.Duration = _stopwatch.Elapsed;
                 _statsSubject.OnNext(_currentMetrics);
             });
-            _currentMetrics = new ActionMetrics {Count = 0, Duration = TimeSpan.Zero, SizeKB = 0d};
             _consumerTag = _channel.BasicConsume(consumer, _queue, true, exclusive: true);
         }
 
@@ -76,6 +75,7 @@ namespace LettuceIo.Dotnet.Base.Actions
             _subscription?.Dispose();
             _timerSubscription?.Dispose();
             _statsSubject.OnCompleted();
+            _stopwatch.Stop();
             _channel?.BasicCancel(_consumerTag);
         }
 
