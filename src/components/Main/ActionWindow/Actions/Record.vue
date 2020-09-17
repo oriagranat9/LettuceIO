@@ -2,7 +2,7 @@
     <div>
         <div id="record" class="row" style="">
             <div class="col-4">
-                <grouped-options v-model="actionDetails" :options="recordOptions"/>
+                <grouped-options :progress-values="progressValues" v-model="actionDetails" :options="recordOptions"/>
             </div>
         </div>
     </div>
@@ -13,6 +13,7 @@
 
     export default {
         name: "Record",
+        props: ['progressValues'],
         data() {
             return {
                 recordOptions: [

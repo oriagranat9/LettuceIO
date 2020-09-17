@@ -4,7 +4,7 @@
         <div v-if="$store.getters.getCurrentTab !== undefined">
             <Connection @action="Action"/>
             <Settings/>
-            <component id="action" :is="$store.getters.getCurrentTab.actionType"/>
+            <component :is="$store.getters.getCurrentTab.actionType" :progress-values="parsedStatus"/>
         </div>
     </div>
 </template>
@@ -78,6 +78,28 @@
                         this.$store.commit('deleteTab', index)
                     }
                 });
+            }
+        },
+        computed: {
+            parsedStatus: {
+                get() {
+                    const currentTabStatus = this.$store.getters.getCurrentTab.status;
+                    const currentTabLimits = this.$store.getters.getCurrentTab.actionDetails;
+                    let messagePercent = 0, sizePercent = 0, secondsPercent = 0;
+                    if (currentTabLimits['countLimit'].status) {
+                        messagePercent = (currentTabStatus['Count'] / currentTabLimits['countLimit'].value) * 100;
+                    }
+                    if (currentTabLimits['sizeLimit'].status) {
+                        sizePercent = (currentTabStatus['SizeKB'] / currentTabLimits['sizeLimit'].value) * 100;
+                    }
+                    if (currentTabLimits['timeLimit'].status) {
+                        let durationList = currentTabStatus['Duration'].split(":");
+                        let secondsPassed = (+durationList[0]) * 60 * 60 + (+durationList[1]) * 60 + (+durationList[2]);
+                        secondsPercent = (secondsPassed / currentTabLimits['timeLimit'].value) * 100;
+                    }
+
+                    return [messagePercent, sizePercent, secondsPercent]
+                }
             }
         }
     }

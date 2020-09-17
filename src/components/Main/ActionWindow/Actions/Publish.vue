@@ -2,7 +2,7 @@
     <div>
         <div id="publish" class="row justify-content-start" style="">
             <div class="col-4">
-                <grouped-options v-model="actionDetails" :options="publishOptions"/>
+                <grouped-options :progress-values="progressValues" v-model="actionDetails" :options="publishOptions"/>
             </div>
             <div class="col-8 justify-content-start" style="margin-top: 20px">
                 <div style="text-align: start; margin: 20px" class="top">
@@ -69,6 +69,7 @@
 
     export default {
         name: "Publish",
+        props: ['progressValues'],
         data() {
             return {
                 publishOptions: [
