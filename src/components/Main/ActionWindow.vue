@@ -89,16 +89,16 @@
                     const currentTabStatus = this.$store.getters.getCurrentTab.status;
                     const currentTabLimits = this.$store.getters.getCurrentTab.actionDetails;
                     let messagePercent = 0, sizePercent = 0, secondsPercent = 0;
-                    if (currentTabLimits['countLimit'].status) {
+                    if (currentTabLimits['countLimit'].status && Object.prototype.hasOwnProperty.call(currentTabStatus, "Count")) {
                         messagePercent = (currentTabStatus['Count'] / currentTabLimits['countLimit'].value) * 100;
                     }
-                    if (currentTabLimits['sizeLimit'].status) {
+                    if (currentTabLimits['sizeLimit'].status && Object.prototype.hasOwnProperty.call(currentTabStatus, "SizeKB")) {
                         sizePercent = (currentTabStatus['SizeKB'] / currentTabLimits['sizeLimit'].value) * 100;
                     }
-                    if (currentTabLimits['timeLimit'].status) {
+                    if (currentTabLimits['timeLimit'].status && Object.prototype.hasOwnProperty.call(currentTabStatus, "Duration")) {
                         let durationList = currentTabStatus['Duration'].split(":");
                         let secondsPassed = (+durationList[0]) * 60 * 60 + (+durationList[1]) * 60 + (+durationList[2]);
-                        secondsPercent = (secondsPassed / currentTabLimits['timeLimit'].value) * 100;
+                        secondsPercent = Math.round((secondsPassed / currentTabLimits['timeLimit'].value) * 100);
                     }
 
                     return [messagePercent, sizePercent, secondsPercent]
