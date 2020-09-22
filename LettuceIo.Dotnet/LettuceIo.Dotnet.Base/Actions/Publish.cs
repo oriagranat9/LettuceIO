@@ -70,6 +70,7 @@ namespace LettuceIo.Dotnet.Base.Actions
 
         public void Stop()
         {
+            if (Status == Status.Stopped) return;
             if (Status != Status.Running) throw new InvalidOperationException("The action is not running");
             Status = Status.Stopped;
             _cts.Cancel();
