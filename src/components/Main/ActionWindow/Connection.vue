@@ -43,9 +43,11 @@
                                       text="VHost"/>
                     </div>
                     <div class="col-lg-2 d-flex justify-content-center">
-                        <button style="width: 75%" @click="$emit('action')" v-bind:disabled="!isValid"
+                        <button style="width: 90%" @click="$emit('action')" v-bind:disabled="!isValid"
                                 class="btn btn-dark lettuce-button align-self-center">
-                            {{$store.getters.getCurrentTab.status['isActive'] ? "stop" : "start"}}
+                            <span v-if="$store.getters.getCurrentTab.status['isLoading']" class="spinner-border spinner-border-sm" role="status" aria-hidden="true"/>
+                            <span v-if="$store.getters.getCurrentTab.status['isLoading']" class="sr-only"/>
+                            {{$store.getters.getCurrentTab.status['isLoading'] ? "Loading..." : ($store.getters.getCurrentTab.status['isActive'] ? "stop" : "start")}}
                         </button>
                     </div>
                 </div>

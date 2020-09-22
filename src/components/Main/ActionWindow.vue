@@ -39,6 +39,7 @@
                 // eslint-disable-next-line no-unused-vars
                 const {name, tmpLists, status, ...sendDetails} = this.$store.getters.getCurrentTab;
                 const selectedTab = this.$store.getters.getCurrentTab;
+                this.$set(selectedTab['status'], "isLoading", true);
                 this.$ipc.invoke("NewAction", sendDetails).then(state => {
                     if (state) {
                         //setting up the status as running
@@ -54,6 +55,8 @@
                             }
                             if (!selectedTab['status']['isActive']) {
                                 self.$ipc.removeAllListeners(sendDetails['id']);
+                            } else {
+                                this.$set(selectedTab['status'], "isLoading", false);
                             }
                         })
                     }
@@ -67,7 +70,7 @@
                         self.$ipc.removeAllListeners(id);
                         return true;
                     } else {
-                        return false
+                        return false;
                     }
                 })
             },
