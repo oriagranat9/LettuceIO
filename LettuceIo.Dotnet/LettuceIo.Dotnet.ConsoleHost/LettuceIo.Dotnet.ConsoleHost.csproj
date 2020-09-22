@@ -6,6 +6,14 @@
         <AssemblyName>LettuceIO.BE</AssemblyName>
     </PropertyGroup>
 
+    <PropertyGroup Condition=" '$(Configuration)' == 'Debug' ">
+      <WarningLevel>0</WarningLevel>
+    </PropertyGroup>
+
+    <PropertyGroup Condition=" '$(Configuration)' == 'Release' ">
+      <WarningLevel>0</WarningLevel>
+    </PropertyGroup>
+
     <ItemGroup>
       <PackageReference Include="ElectronCgi.DotNet" Version="1.0.3" />
       <PackageReference Include="Newtonsoft.Json" Version="12.0.3" />
