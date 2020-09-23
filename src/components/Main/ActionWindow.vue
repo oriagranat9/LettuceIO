@@ -75,12 +75,16 @@
                 })
             },
             terminateTab(index) {
-                const tab = this.$store.getters.tabs[index];
-                this.terminateAction(tab['id']).then(state => {
-                    if (state) {
-                        this.$store.commit('deleteTab', index)
-                    }
-                });
+                const tab = this.$store.getters.getTabs[index];
+                if (tab['status']['isActive'] || tab['status']['isLoading']) {
+                    this.terminateAction(tab['id']).then(state => {
+                        if (state) {
+                            this.$store.commit('deleteTab', index)
+                        }
+                    });
+                } else {
+                    this.$store.commit('deleteTab', index)
+                }
             }
         },
         computed: {

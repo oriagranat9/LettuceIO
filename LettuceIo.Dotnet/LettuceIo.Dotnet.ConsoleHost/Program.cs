@@ -43,8 +43,7 @@ namespace LettuceIo.Dotnet.ConsoleHost
 
         private static void TerminateAction(string id)
         {
-            if (!ActiveActions.TryRemove(id, out var action))
-                throw new Exception("Failed removing action from dictionary");
+            if (!ActiveActions.TryRemove(id, out var action)) return;
             action.Stop();
         }
     }
