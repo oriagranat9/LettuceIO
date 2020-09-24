@@ -19,10 +19,8 @@ namespace LettuceIo.Dotnet.Base
         public PublishOptions PublishOptions = new PublishOptions();
         public RecordOptions RecordOptions = new RecordOptions();
 
-        public JsonSerializerSettings SerializerSettings = new JsonSerializerSettings()
-        {
-            Formatting = Formatting.Indented
-        };
+        public JsonSerializerSettings SerializerSettings = new JsonSerializerSettings
+            {Formatting = Formatting.Indented};
 
         public IAction Build() => ActionType switch
         {

@@ -43,8 +43,7 @@ namespace LettuceIo.Dotnet.ConsoleHost
 
         private static void TerminateAction(string id)
         {
-            if (!ActiveActions.TryRemove(id, out var action)) return;
-            action.Stop();
+            if (ActiveActions.TryRemove(id, out var action)) action.Stop();
         }
     }
 }
