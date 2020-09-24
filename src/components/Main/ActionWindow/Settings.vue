@@ -9,6 +9,10 @@
             </div>
             <div class="col-5 align-self-center" style="max-width: 300px; text-align: start">
                 <select-input v-model="selectedOption" :options="optionList" :text="selectName" style="margin: 0"/>
+                <span style="font-size: small; position: absolute" class="text-light"
+                      v-if="$store.getters.getCurrentTab.selectedOption.type === 'Exchange'">
+                    Type: {{$store.getters.getCurrentTab.selectedOption.exchangeType}}
+                </span>
             </div>
         </div>
     </div>

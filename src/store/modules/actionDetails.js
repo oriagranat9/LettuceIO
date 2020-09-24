@@ -11,6 +11,7 @@ const recordDetails = {
         status: false,
         value: 0
     },
+    bindingRoutingKey: ""
 };
 
 const publishDetails = {

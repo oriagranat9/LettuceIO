@@ -2,6 +2,7 @@
     <div class="form-group form-inline ">
         <label :for="id" class="text-light justify-content-start" style="user-select: none; white-space: nowrap">{{text}}</label>
         <input :id="id" :value="value"
+               v-bind:placeholder="placeholder !== undefined ? placeholder : ''"
                @focus="e => $emit('focus', e)"
                @blur="e => $emit('blur', e)"
                v-on:input="updateValue($event.target.value)"
@@ -12,7 +13,7 @@
 <script>
     export default {
         name: "textInput",
-        props: ['text', 'value', 'disabled'],
+        props: ['text', 'value', 'disabled', 'placeholder'],
         methods: {
             updateValue(value) {
                 this.$emit('input', value)

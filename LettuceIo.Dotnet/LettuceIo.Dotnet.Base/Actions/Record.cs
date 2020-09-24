@@ -23,7 +23,9 @@ namespace LettuceIo.Dotnet.Base.Actions
 
         private readonly IConnectionFactory _connectionFactory;
         private readonly Limits _limits;
+        private readonly string? _exchange;
         private readonly string _queue;
+        private readonly RecordOptions _options;
         private readonly string _folderPath;
         private readonly JsonSerializerSettings _serializerSettings;
         private IModel? _channel;
@@ -37,13 +39,15 @@ namespace LettuceIo.Dotnet.Base.Actions
 
         #endregion
 
-        public Record(IConnectionFactory connectionFactory, Limits limits, string queue, string folderPath,
-            JsonSerializerSettings serializerSettings)
+        public Record(IConnectionFactory connectionFactory, Limits limits, string? exchange, string queue,
+            string folderPath, RecordOptions options, JsonSerializerSettings serializerSettings)
         {
             _connectionFactory = connectionFactory;
             _limits = limits;
-            _queue = queue ?? throw new ArgumentException(nameof(queue));
-            _folderPath = folderPath ?? throw new ArgumentException(nameof(folderPath));
+            _exchange = exchange;
+            _queue = queue;
+            _options = options;
+            _folderPath = folderPath;
             _serializerSettings = serializerSettings;
         }
 
@@ -65,6 +69,13 @@ namespace LettuceIo.Dotnet.Base.Actions
                 _currentMetrics.Duration = _stopwatch.Elapsed;
                 _statsSubject.OnNext(_currentMetrics);
             });
+
+            if (_exchange != null)
+            {
+                _channel.QueueDeclare(_queue);
+                _channel.QueueBind(_queue, _exchange, _options.BindingRoutingKey);
+            }
+
             _consumerTag = _channel.BasicConsume(consumer, _queue, true, exclusive: true);
         }
 

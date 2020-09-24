@@ -11,12 +11,13 @@ namespace LettuceIo.Dotnet.Base
     public class ActionFactory
     {
         public ActionType ActionType;
-        public string FolderPath;
-        public string Queue;
-        public string Exchange;
-        public IConnectionFactory ConnectionFactory;
+        public string? FolderPath;
+        public string? Queue;
+        public string? Exchange;
+        public IConnectionFactory? ConnectionFactory;
         public Limits Limits = new Limits();
-        public PublishOptions PublishOptions;
+        public PublishOptions PublishOptions = new PublishOptions();
+        public RecordOptions RecordOptions = new RecordOptions();
 
         public JsonSerializerSettings SerializerSettings = new JsonSerializerSettings()
         {
@@ -25,8 +26,9 @@ namespace LettuceIo.Dotnet.Base
 
         public IAction Build() => ActionType switch
         {
-            ActionType.Record => new Record(ConnectionFactory, Limits, Queue, FolderPath, SerializerSettings),
-            ActionType.Publish => new Publish(ConnectionFactory, Limits, Exchange, FolderPath, PublishOptions,
+            ActionType.Record => new Record(ConnectionFactory, Limits, Exchange, Queue, FolderPath, RecordOptions,
+                SerializerSettings),
+            ActionType.Publish => new Publish(ConnectionFactory, Limits, Exchange, Queue, FolderPath, PublishOptions,
                 SerializerSettings),
             _ => throw new NotSupportedException($"Action \"{ActionType}\" is not supported")
         };

@@ -15,9 +15,15 @@
     import Settings from "./ActionWindow/Settings";
     import Record from "./ActionWindow/Actions/Record";
     import Publish from "./ActionWindow/Actions/Publish";
+    import ExchangePlaceholders from "./ActionWindow/ExchangePlaceholders";
 
     export default {
         name: "ActionWindow",
+        data() {
+            return {
+                placeholders: ExchangePlaceholders
+            }
+        },
         components: {
             Tabs,
             Connection,
@@ -39,6 +45,10 @@
                 // eslint-disable-next-line no-unused-vars
                 const {name, tmpLists, status, ...sendDetails} = this.$store.getters.getCurrentTab;
                 const selectedTab = this.$store.getters.getCurrentTab;
+                //check if there's no routing key for recording from exchange
+                if (sendDetails.actionType === "Record" && sendDetails.selectedOption.type === "Exchange" && sendDetails.actionDetails.bindingRoutingKey === "") {
+                    sendDetails.actionDetails.bindingRoutingKey = this.placeholders[sendDetails.selectedOption.exchangeType];
+                }
                 this.$set(selectedTab['status'], "isLoading", true);
                 this.$ipc.invoke("NewAction", sendDetails).then(state => {
                     if (state) {

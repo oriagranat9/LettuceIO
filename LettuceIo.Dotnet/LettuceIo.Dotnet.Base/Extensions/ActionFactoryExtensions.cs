@@ -8,16 +8,23 @@ namespace LettuceIo.Dotnet.Base.Extensions
 {
     public static class ActionFactoryExtensions
     {
+        public const string DEFAULTNAME = "LettuceIO-";
+
         public static ActionFactory Configure(this ActionFactory f, JToken details)
         {
             f.ActionType = Enum.Parse<ActionType>(details.Value<string>("actionType"));
             f.FolderPath = details.Value<string>("folderPath");
-            f.ConfigureEntities(details["selectedOption"]);
+            var id = details.Value<string>("id");
+            f.ConfigureEntities(details["selectedOption"], id);
             f.ConnectionFactory = ToConnectionFactory(details["connection"]);
             f.Limits = ToLimits(details["actionDetails"]);
             if (f.ActionType == ActionType.Publish)
             {
                 f.PublishOptions = ToPublishOptions(details["actionDetails"]);
+            }
+            else
+            {
+                f.RecordOptions = ToRecordOptions(details["actionDetails"]);
             }
 
             return f;
@@ -31,16 +38,17 @@ namespace LettuceIo.Dotnet.Base.Extensions
             Password = details.Value<string>("password")
         };
 
-        public static void ConfigureEntities(this ActionFactory f, JToken details)
+        public static void ConfigureEntities(this ActionFactory f, JToken details, string id)
         {
             switch (details.Value<string>("type"))
             {
                 case "Queue":
                     f.Queue = details.Value<string>("name");
+                    f.Exchange = DEFAULTNAME + id;
                     break;
                 case "Exchange":
                     f.Exchange = details.Value<string>("name");
-                    f.Queue = ""; //TODO
+                    f.Queue = DEFAULTNAME + id;
                     break;
             }
         }
@@ -64,6 +72,11 @@ namespace LettuceIo.Dotnet.Base.Extensions
             Loop = details.Value<bool>("isLoop"),
             Playback = details.Value<bool>("playback"),
             Shuffle = details.Value<bool>("isShuffle"),
+        };
+        
+        public static RecordOptions ToRecordOptions(JToken details) => new RecordOptions
+        {
+            BindingRoutingKey = details.Value<string>("bindingRoutingKey"),
         };
     }
 }

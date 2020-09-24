@@ -19,6 +19,7 @@ namespace LettuceIo.Dotnet.Base.Actions
         private readonly IConnectionFactory _connectionFactory;
         private readonly Limits _limits;
         private readonly string _exchange;
+        private readonly string? _queue;
         private readonly IReadOnlyCollection<Message> _messages;
         private readonly PublishOptions _options;
         public Status Status { get; private set; } = Status.Pending;
@@ -29,12 +30,13 @@ namespace LettuceIo.Dotnet.Base.Actions
         private bool _stop;
         private readonly CancellationTokenSource _cts = new CancellationTokenSource();
 
-        public Publish(IConnectionFactory connectionFactory, Limits limits, string exchange,
+        public Publish(IConnectionFactory connectionFactory, Limits limits, string exchange, string? queue,
             string folderPath, PublishOptions options, JsonSerializerSettings serializerSettings)
         {
             _connectionFactory = connectionFactory;
             _limits = limits;
             _exchange = exchange;
+            _queue = queue;
             _options = options;
             _messages = Directory.EnumerateFiles(folderPath, "*.json")
                 .Select(File.ReadAllText)
@@ -51,7 +53,9 @@ namespace LettuceIo.Dotnet.Base.Actions
             IEnumerable<Message> messages = _messages;
             if (_options.Shuffle) messages = messages.Shuffle();
             if (_options.Loop) messages = messages.Loop();
-
+            
+            //todo: declare based on _queue==null
+            
             if (_options.Playback)
                 Task.Run(() =>
                 {
