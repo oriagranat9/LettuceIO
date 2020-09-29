@@ -5,7 +5,7 @@
         public bool Shuffle;
         public bool Loop;
         public bool Playback;
-        public double RateHz;
+        public RateDetails RateDetails;
         public RoutingKeyDetails RoutingKeyDetails;
     }
 
@@ -13,6 +13,12 @@
     {
         public PublishRoutingKeyType RoutingKeyType;
         public string CustomValue;
+    }
+
+    public struct RateDetails
+    {
+        public double Rate;
+        public int Multiplier;
     }
 
     public enum PublishRoutingKeyType

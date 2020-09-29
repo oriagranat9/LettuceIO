@@ -47,7 +47,7 @@ namespace LettuceIo.Dotnet.Base.Extensions
                         Loop = details.Value<bool>("isLoop"),
                         Playback = details.Value<bool>("playback"),
                         Shuffle = details.Value<bool>("isShuffle"),
-                        RateHz = details.Value<double>("publishRate"),
+                        RateDetails = ToRateDetails(details.Value<JToken>("rateDetails")),
                         RoutingKeyDetails = ToRoutingKeyDetails("routingKeyDetails")
                     };
                     break;
@@ -86,9 +86,15 @@ namespace LettuceIo.Dotnet.Base.Extensions
         {
             CustomValue = details.Value<string>("customValue"),
             RoutingKeyType = details.Value<bool>("isCustom")
-                ? details.Value<bool>("isRandom") ? PublishRoutingKeyType.Random 
+                ? details.Value<bool>("isRandom") ? PublishRoutingKeyType.Random
                 : PublishRoutingKeyType.Custom
                 : PublishRoutingKeyType.Recorded
+        };
+
+        public static RateDetails ToRateDetails(JToken details) => new RateDetails
+        {
+            Rate = details.Value<double>("rate"),
+            Multiplier = details.Value<int>("multiplier")
         };
     }
 }
