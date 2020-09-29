@@ -1,6 +1,6 @@
 <template>
-    <div>
-        <div id="publish" class="row justify-content-start" style="">
+    <div style="position: relative">
+        <div id="publish" class="row justify-content-start">
             <div class="col-4">
                 <grouped-options :progress-values="progressValues" v-model="actionDetails" :options="publishOptions"/>
             </div>
@@ -64,7 +64,6 @@
 
 <script>
     import groupedOptions from "./groupedOptions";
-    import checkboxInput from "../../../inputs/checkboxInput";
     import TextInput from "../../../inputs/textInput";
 
     export default {
@@ -94,8 +93,6 @@
         components: {
             TextInput,
             groupedOptions,
-            // eslint-disable-next-line vue/no-unused-components
-            checkboxInput
         },
         computed: {
             actionDetails: {
@@ -115,6 +112,7 @@
 </script>
 
 <style scoped>
+
     .top {
         margin-top: 16px;
     }

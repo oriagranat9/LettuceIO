@@ -46,7 +46,9 @@ namespace LettuceIo.Dotnet.Base.Extensions
                     {
                         Loop = details.Value<bool>("isLoop"),
                         Playback = details.Value<bool>("playback"),
-                        Shuffle = details.Value<bool>("isShuffle")
+                        Shuffle = details.Value<bool>("isShuffle"),
+                        RateHz = details.Value<double>("publishRate"),
+                        RoutingKeyDetails = ToRoutingKeyDetails("routingKeyDetails")
                     };
                     break;
                 case ActionType.Record:
@@ -78,6 +80,15 @@ namespace LettuceIo.Dotnet.Base.Extensions
                 ? (TimeSpan?) TimeSpan.FromSeconds(details["timeLimit"]!
                     .Value<double>("value"))
                 : null
+        };
+
+        public static RoutingKeyDetails ToRoutingKeyDetails(JToken details) => new RoutingKeyDetails
+        {
+            CustomValue = details.Value<string>("customValue"),
+            RoutingKeyType = details.Value<bool>("isCustom")
+                ? details.Value<bool>("isRandom") ? PublishRoutingKeyType.Random 
+                : PublishRoutingKeyType.Custom
+                : PublishRoutingKeyType.Recorded
         };
     }
 }

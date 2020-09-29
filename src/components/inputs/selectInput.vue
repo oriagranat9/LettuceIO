@@ -29,6 +29,7 @@
 <style>
     .select-wrapper {
         width: 100% !important;
+        height: 32px !important;
     }
 
     /*Scroll bar css style for the select overflow*/

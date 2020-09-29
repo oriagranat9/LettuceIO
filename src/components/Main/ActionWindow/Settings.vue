@@ -1,9 +1,9 @@
 <template>
     <div class="margins">
         <div class="row span justify-content-start">
-            <div class="col-3 align-self-end" style="text-align: start">
+            <div class="col-2 align-self-end" style="text-align: start">
                 <button @click="selectFolder" style="margin-top: 5px"
-                        class="btn btn-outline-success align-self-center align-middle">Select
+                        class="btn btn-sm btn-outline-success align-self-center align-middle">Select
                     Folder
                 </button>
             </div>
@@ -24,7 +24,7 @@
     export default {
         name: "Settings",
         components: {
-            SelectInput
+            SelectInput,
         },
         data() {
             return {}

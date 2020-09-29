@@ -30,6 +30,7 @@ const publishDetails = {
     isShuffle: false,
     isLoop: false,
     playback: false,
+    publishRate: 0,
     routingKeyDetails: {
         isCustom: false,
         customValue: "",
