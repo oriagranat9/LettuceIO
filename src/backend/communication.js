@@ -6,11 +6,24 @@ let cgi = undefined;
 
 ipcMain.handle("NewAction", async (event, args) => {
     let id = args["id"];
-    cgi.on(id, async (e, a) => event.sender.send(id, a));
-    return await cgi.send("NewAction", args);
+    try {
+        let response = await cgi.send("NewAction", args);
+        if (response) {
+            cgi.on(id, async (message) => event.sender.send(id, message));
+        }
+        return {status: true};
+    } catch (e) {
+        return {status: false, message: e}
+    }
+
 });
-ipcMain.handle("TerminateAction", async (_, args) => {
-    await cgi.send("TerminateAction", args)
+ipcMain.handle("TerminateAction", async (_, id) => {
+    try {
+        await cgi.send("TerminateAction", id);
+        return {status: true};
+    } catch (e) {
+        return {status: false, message: e}
+    }
 });
 
 ipcMain.handle("queryVhost", async (_, args) => {

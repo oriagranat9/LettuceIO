@@ -11,6 +11,7 @@ const recordDetails = {
         status: false,
         value: 0
     },
+    bindingRoutingKey: ""
 };
 
 const publishDetails = {
@@ -29,6 +30,10 @@ const publishDetails = {
     isShuffle: false,
     isLoop: false,
     playback: false,
+    rateDetails: {
+        rate: 10,
+        multiplier: 1
+    },
     routingKeyDetails: {
         isCustom: false,
         customValue: "",

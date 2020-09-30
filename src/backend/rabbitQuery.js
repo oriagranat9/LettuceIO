@@ -55,7 +55,7 @@ async function queryVHosts({hostname, port, username, password}) {
 async function queryOptions({hostname, port, username, password, vhost}) {
     let tmp = [];
     if (hostname !== "" && port !== "" && username !== "" && password !== "" && vhost !== "") {
-        let encodedVhost = encodeURIComponent(vhost)
+        let encodedVhost = encodeURIComponent(vhost);
         let queueRequest = axios.get(getConnString(hostname, port) + `/api/queues/${encodedVhost}`, {
             auth: {
                 username: username,
@@ -91,9 +91,10 @@ async function queryOptions({hostname, port, username, password, vhost}) {
         }
         if (exchangeResponse.status === 200) {
             for (let exchange of exchangeResponse.data) {
-                if (exchange['name'] !== "") {
+                if (exchange['name'] !== "" && !exchange['name'].includes("amq.")) {
                     tmp.push({
                         type: "Exchange",
+                        exchangeType: exchange["type"],
                         name: exchange['name']
                     })
                 }

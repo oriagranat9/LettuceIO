@@ -1,6 +1,6 @@
 ﻿using System;
-using LettuceIo.Dotnet.Core;
 using LettuceIo.Dotnet.Core.Enums;
+using LettuceIo.Dotnet.Core.Structs;
 using Newtonsoft.Json.Linq;
 using RabbitMQ.Client;
 
@@ -8,14 +8,56 @@ namespace LettuceIo.Dotnet.Base.Extensions
 {
     public static class ActionFactoryExtensions
     {
+        private const string Defaultname = "LettuceIO-";
+
         public static ActionFactory Configure(this ActionFactory f, JToken details)
         {
-            f.ActionType = Enum.Parse<ActionType>(details.Value<string>("actionType"));
             f.FolderPath = details.Value<string>("folderPath");
-            f.ConfigureEntities(details["selectedOption"]);
-            f.ConnectionFactory = ToConnectionFactory(details["connection"]);
-            f.Limits = ToLimits(details["actionDetails"]);
+            f.ActionType = Enum.Parse<ActionType>(details.Value<string>("actionType"));
+            f.ConfigureActions(details["actionDetails"]!, f.ActionType);
+            f.ConfigureEntities(details["selectedOption"]!, f.ActionType, details.Value<string>("id"));
+            f.ConnectionFactory = ToConnectionFactory(details["connection"]!);
+            f.Limits = ToLimits(details["actionDetails"]!);
             return f;
+        }
+
+
+        public static void ConfigureEntities(this ActionFactory f, JToken details, ActionType type, string id)
+        {
+            switch (details.Value<string>("type"))
+            {
+                case "Queue":
+                    f.Queue = details.Value<string>("name");
+                    if (type == ActionType.Publish) f.Exchange = Defaultname + id;
+                    break;
+                case "Exchange":
+                    f.Exchange = details.Value<string>("name");
+                    if (type == ActionType.Record) f.Queue = Defaultname + id;
+                    break;
+            }
+        }
+
+        public static void ConfigureActions(this ActionFactory f, JToken details, ActionType actionType)
+        {
+            switch (actionType)
+            {
+                case ActionType.Publish:
+                    f.PublishOptions = new PublishOptions
+                    {
+                        Loop = details.Value<bool>("isLoop"),
+                        Playback = details.Value<bool>("playback"),
+                        Shuffle = details.Value<bool>("isShuffle"),
+                        RateDetails = ToRateDetails(details["rateDetails"]!),
+                        RoutingKeyDetails = ToRoutingKeyDetails(details["routingKeyDetails"]!)
+                    };
+                    break;
+                case ActionType.Record:
+                    f.RecordOptions = new RecordOptions
+                    {
+                        BindingRoutingKey = details.Value<string>("bindingRoutingKey")
+                    };
+                    break;
+            }
         }
 
         public static IConnectionFactory ToConnectionFactory(JToken details) => new ConnectionFactory
@@ -25,20 +67,6 @@ namespace LettuceIo.Dotnet.Base.Extensions
             UserName = details.Value<string>("username"),
             Password = details.Value<string>("password")
         };
-
-        public static void ConfigureEntities(this ActionFactory f, JToken details)
-        {
-            switch (details.Value<string>("type"))
-            {
-                case "Queue":
-                    f.Queue = details.Value<string>("name");
-                    break;
-                case "Exchange":
-                    f.Exchange = details.Value<string>("name");
-                    f.Queue = ""; //TODO
-                    break;
-            }
-        }
 
         public static Limits ToLimits(JToken details) => new Limits
         {
@@ -52,6 +80,21 @@ namespace LettuceIo.Dotnet.Base.Extensions
                 ? (TimeSpan?) TimeSpan.FromSeconds(details["timeLimit"]!
                     .Value<double>("value"))
                 : null
+        };
+
+        public static RoutingKeyDetails ToRoutingKeyDetails(JToken details) => new RoutingKeyDetails
+        {
+            CustomValue = details.Value<string>("customValue"),
+            RoutingKeyType = details.Value<bool>("isCustom")
+                ? details.Value<bool>("isRandom") ? PublishRoutingKeyType.Random
+                : PublishRoutingKeyType.Custom
+                : PublishRoutingKeyType.Recorded
+        };
+
+        public static RateDetails ToRateDetails(JToken details) => new RateDetails
+        {
+            RateHz = details.Value<double>("rate"),
+            Multiplier = details.Value<int>("multiplier")
         };
     }
 }

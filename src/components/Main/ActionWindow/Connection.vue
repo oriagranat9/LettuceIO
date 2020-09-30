@@ -43,8 +43,11 @@
                                       text="VHost"/>
                     </div>
                     <div class="col-lg-2 d-flex justify-content-center">
-                        <button style="width: 75%" @click="startAction" v-bind:disabled="!isValid"
-                                class="btn btn-dark lettuce-button align-self-center">Start
+                        <button style="width: 90%" @click="$emit('action')" v-bind:disabled="!isValid"
+                                class="btn btn-dark lettuce-button align-self-center">
+                            <span v-if="$store.getters.getCurrentTab.status['isLoading']" class="spinner-border spinner-border-sm" role="status" aria-hidden="true"/>
+                            <span v-if="$store.getters.getCurrentTab.status['isLoading']" class="sr-only"/>
+                            {{$store.getters.getCurrentTab.status['isLoading'] ? "Loading..." : ($store.getters.getCurrentTab.status['isActive'] ? "stop" : "start")}}
                         </button>
                     </div>
                 </div>
@@ -156,14 +159,6 @@
                         this.connectionString += `:${this.connectionDetails.apiPort}`
                     }
                 }
-            },
-            startAction() {
-                // eslint-disable-next-line no-unused-vars
-                const {name, tmpLists, ...sendDetails} = this.$store.getters.getCurrentTab;
-
-                this.$ipc.invoke("NewAction", sendDetails).then(value => {
-                    console.log(value);
-                });
             }
         },
         computed: {

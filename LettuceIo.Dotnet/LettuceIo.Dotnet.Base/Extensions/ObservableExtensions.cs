@@ -1,6 +1,6 @@
 ﻿using System;
 using System.Reactive.Linq;
-using LettuceIo.Dotnet.Core;
+using LettuceIo.Dotnet.Core.Structs;
 
 namespace LettuceIo.Dotnet.Base.Extensions
 {
@@ -21,7 +21,7 @@ namespace LettuceIo.Dotnet.Base.Extensions
         public static IObservable<T> Limit<T>(this IObservable<T> observable, long amount)
         {
             var i = 0L;
-            return observable.TakeUntil(_ => i++ < amount);
+            return observable.TakeUntil(_ => ++i >= amount);
         }
 
         public static IObservable<Message> Limit(this IObservable<Message> observable, double sizeKB)
@@ -30,7 +30,7 @@ namespace LettuceIo.Dotnet.Base.Extensions
             return observable.TakeUntil(message =>
             {
                 s += message.SizeKB();
-                return s < sizeKB;
+                return s >= sizeKB;
             });
         }
     }
