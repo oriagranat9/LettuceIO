@@ -6,7 +6,6 @@ using System.Linq;
 using System.Reactive.Linq;
 using System.Reactive.Subjects;
 using System.Threading;
-using System.Threading.Channels;
 using System.Threading.Tasks;
 using LettuceIo.Dotnet.Base.Extensions;
 using LettuceIo.Dotnet.Core.Enums;
@@ -21,7 +20,9 @@ namespace LettuceIo.Dotnet.Base.Actions
     {
         public Status Status { get; private set; } = Status.Pending;
         public IObservable<ActionMetrics> Stats => _statsSubject;
-        
+
+        #region fields
+
         private readonly IConnectionFactory _connectionFactory;
         private readonly Limits _limits;
         private readonly string _exchange;
@@ -37,6 +38,8 @@ namespace LettuceIo.Dotnet.Base.Actions
         private IDisposable? _timerSubscription;
         private readonly TimeSpan _updateInterval = TimeSpan.FromMilliseconds(100);
         private readonly List<Task> _publishTasks = new List<Task>();
+
+        #endregion
 
         public Publish(IConnectionFactory connectionFactory, Limits limits, string exchange, string? queue,
             string folderPath, PublishOptions options, JsonSerializerSettings serializerSettings)
@@ -148,7 +151,7 @@ namespace LettuceIo.Dotnet.Base.Actions
                 _currentMetrics.Duration = _durationStopWatch.Elapsed;
                 _statsSubject.OnNext(_currentMetrics);
             });
-            Task.WhenAny(_publishTasks).ContinueWith(task => Stop());
+            Task.WhenAny(_publishTasks).ContinueWith(_ => Stop());
             _publishTasks.ForEach(task => task.Start());
         }
 
@@ -177,7 +180,6 @@ namespace LettuceIo.Dotnet.Base.Actions
             _currentMetrics.Count++;
             _currentMetrics.Duration = _durationStopWatch.Elapsed;
             _currentMetrics.SizeKB += message.SizeKB();
-            // _statsSubject.OnNext(_currentMetrics);
         }
     }
 }

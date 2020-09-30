@@ -35,7 +35,7 @@ namespace LettuceIo.Dotnet.Base.Actions
         private string? _consumerTag;
         private IDisposable? _subscription;
         private IDisposable? _timerSubscription;
-        private readonly TimeSpan _updateInterval = TimeSpan.FromSeconds(1);
+        private readonly TimeSpan _updateInterval = TimeSpan.FromMilliseconds(100);
 
         #endregion
 
