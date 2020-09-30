@@ -83,7 +83,7 @@
                         key: "sizeLimit"
                     },
                     {
-                        text: "record time",
+                        text: "duration",
                         inputText: "sec",
                         key: "timeLimit"
                     },

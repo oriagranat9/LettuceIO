@@ -3,4 +3,5 @@
 	<s:Boolean x:Key="/Default/UserDictionary/Words/=amqp/@EntryIndexedValue">True</s:Boolean>
 	<s:Boolean x:Key="/Default/UserDictionary/Words/=DEFAULTNAME/@EntryIndexedValue">True</s:Boolean>
 	<s:Boolean x:Key="/Default/UserDictionary/Words/=DEFAULTQUEUENAME/@EntryIndexedValue">True</s:Boolean>
+	<s:Boolean x:Key="/Default/UserDictionary/Words/=fanout/@EntryIndexedValue">True</s:Boolean>
 	<s:Boolean x:Key="/Default/UserDictionary/Words/=vhost/@EntryIndexedValue">True</s:Boolean></wpf:ResourceDictionary>

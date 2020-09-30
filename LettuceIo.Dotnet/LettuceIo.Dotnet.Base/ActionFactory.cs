@@ -24,9 +24,9 @@ namespace LettuceIo.Dotnet.Base
 
         public IAction Build() => ActionType switch
         {
-            ActionType.Record => new Record(ConnectionFactory, Limits, Exchange, Queue, FolderPath, RecordOptions,
+            ActionType.Record => new Record(ConnectionFactory!, Limits, Exchange, Queue!, FolderPath!, RecordOptions,
                 SerializerSettings),
-            ActionType.Publish => new Publish(ConnectionFactory, Limits, Exchange, Queue, FolderPath, PublishOptions,
+            ActionType.Publish => new Publish(ConnectionFactory!, Limits, Exchange!, Queue, FolderPath!, PublishOptions,
                 SerializerSettings),
             _ => throw new NotSupportedException($"Action \"{ActionType}\" is not supported")
         };

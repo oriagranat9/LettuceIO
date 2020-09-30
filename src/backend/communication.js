@@ -11,18 +11,18 @@ ipcMain.handle("NewAction", async (event, args) => {
         if (response) {
             cgi.on(id, async (message) => event.sender.send(id, message));
         }
-        return true;
+        return {status: true};
     } catch (e) {
-        return false;
+        return {status: false, message: e}
     }
 
 });
 ipcMain.handle("TerminateAction", async (_, id) => {
     try {
         await cgi.send("TerminateAction", id);
-        return true
+        return {status: true};
     } catch (e) {
-        return false
+        return {status: false, message: e}
     }
 });
 

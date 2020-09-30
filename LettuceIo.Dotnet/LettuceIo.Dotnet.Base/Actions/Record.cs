@@ -31,7 +31,7 @@ namespace LettuceIo.Dotnet.Base.Actions
         private IModel? _channel;
         private ActionMetrics _currentMetrics = new ActionMetrics {Count = 0, Duration = TimeSpan.Zero, SizeKB = 0d};
         private readonly ISubject<ActionMetrics> _statsSubject = new Subject<ActionMetrics>();
-        private readonly Stopwatch _stopwatch = new Stopwatch();
+        private readonly Stopwatch _durationStopWatch = new Stopwatch();
         private string? _consumerTag;
         private IDisposable? _subscription;
         private IDisposable? _timerSubscription;
@@ -63,10 +63,10 @@ namespace LettuceIo.Dotnet.Base.Actions
                 .Select(ToMessage)
                 .Limit(_limits)
                 .Subscribe(OnMessage, Stop);
-            _stopwatch.Restart();
+            _durationStopWatch.Restart();
             _timerSubscription = Observable.Interval(_updateInterval).Subscribe(_ =>
             {
-                _currentMetrics.Duration = _stopwatch.Elapsed;
+                _currentMetrics.Duration = _durationStopWatch.Elapsed;
                 _statsSubject.OnNext(_currentMetrics);
             });
 
@@ -87,8 +87,9 @@ namespace LettuceIo.Dotnet.Base.Actions
             _subscription?.Dispose();
             _timerSubscription?.Dispose();
             _statsSubject.OnCompleted();
-            _stopwatch.Stop();
+            _durationStopWatch.Stop();
             _channel?.BasicCancel(_consumerTag);
+            if (_exchange != null) _channel?.QueueDelete(_queue);//TODO: check if it's necessary with autoDelete on the queue
         }
 
         private void OnMessage(Message message)
@@ -97,7 +98,7 @@ namespace LettuceIo.Dotnet.Base.Actions
             var path = Path.Combine(_folderPath, name);
             //TODO message save as base 64 string ?
             var task = File.WriteAllTextAsync(path, JsonConvert.SerializeObject(message, _serializerSettings));
-            _currentMetrics.Duration = _stopwatch.Elapsed;
+            _currentMetrics.Duration = _durationStopWatch.Elapsed;
             _currentMetrics.Count++;
             _currentMetrics.SizeKB += message.SizeKB();
             _statsSubject.OnNext(_currentMetrics);

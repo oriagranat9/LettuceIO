@@ -17,7 +17,7 @@
 
     public struct RateDetails
     {
-        public double Rate;
+        public double RateHz;
         public int Multiplier;
     }
 

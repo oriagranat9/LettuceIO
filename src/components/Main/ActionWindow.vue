@@ -51,7 +51,7 @@
                 }
                 this.$set(selectedTab['status'], "isLoading", true);
                 this.$ipc.invoke("NewAction", sendDetails).then(state => {
-                    if (state) {
+                    if (state['status']) {
                         //setting up the status as running
                         selectedTab['status'] = {
                             isActive: true
@@ -69,17 +69,19 @@
                                 this.$set(selectedTab['status'], "isLoading", false);
                             }
                         })
+                    } else {
+                        console.error(state['message'])
                     }
-                    //   TODO: what happens if task start wasn't successful?
                 });
             },
             async terminateAction(id) {
                 const self = this;
                 return await this.$ipc.invoke("TerminateAction", id).then(state => {
-                    if (state) {
+                    if (state['status']) {
                         self.$ipc.removeAllListeners(id);
                         return true;
                     } else {
+                        console.error(state['message']);
                         return false;
                     }
                 })

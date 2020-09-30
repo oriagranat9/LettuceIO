@@ -8,31 +8,31 @@ namespace LettuceIo.Dotnet.Base.Extensions
 {
     public static class ActionFactoryExtensions
     {
-        public const string DEFAULTNAME = "LettuceIO-";
+        private const string Defaultname = "LettuceIO-";
 
         public static ActionFactory Configure(this ActionFactory f, JToken details)
         {
             f.FolderPath = details.Value<string>("folderPath");
             f.ActionType = Enum.Parse<ActionType>(details.Value<string>("actionType"));
-            f.ConfigureActions(details["actionDetails"], f.ActionType);
-            f.ConfigureEntities(details["selectedOption"], details.Value<string>("id"));
-            f.ConnectionFactory = ToConnectionFactory(details["connection"]);
-            f.Limits = ToLimits(details["actionDetails"]);
+            f.ConfigureActions(details["actionDetails"]!, f.ActionType);
+            f.ConfigureEntities(details["selectedOption"]!, f.ActionType, details.Value<string>("id"));
+            f.ConnectionFactory = ToConnectionFactory(details["connection"]!);
+            f.Limits = ToLimits(details["actionDetails"]!);
             return f;
         }
 
 
-        public static void ConfigureEntities(this ActionFactory f, JToken details, string id)
+        public static void ConfigureEntities(this ActionFactory f, JToken details, ActionType type, string id)
         {
             switch (details.Value<string>("type"))
             {
                 case "Queue":
                     f.Queue = details.Value<string>("name");
-                    f.Exchange = DEFAULTNAME + id;
+                    if (type == ActionType.Publish) f.Exchange = Defaultname + id;
                     break;
                 case "Exchange":
                     f.Exchange = details.Value<string>("name");
-                    f.Queue = DEFAULTNAME + id;
+                    if (type == ActionType.Record) f.Queue = Defaultname + id;
                     break;
             }
         }
@@ -47,8 +47,8 @@ namespace LettuceIo.Dotnet.Base.Extensions
                         Loop = details.Value<bool>("isLoop"),
                         Playback = details.Value<bool>("playback"),
                         Shuffle = details.Value<bool>("isShuffle"),
-                        RateDetails = ToRateDetails(details.Value<JToken>("rateDetails")),
-                        RoutingKeyDetails = ToRoutingKeyDetails("routingKeyDetails")
+                        RateDetails = ToRateDetails(details["rateDetails"]!),
+                        RoutingKeyDetails = ToRoutingKeyDetails(details["routingKeyDetails"]!)
                     };
                     break;
                 case ActionType.Record:
@@ -93,7 +93,7 @@ namespace LettuceIo.Dotnet.Base.Extensions
 
         public static RateDetails ToRateDetails(JToken details) => new RateDetails
         {
-            Rate = details.Value<double>("rate"),
+            RateHz = details.Value<double>("rate"),
             Multiplier = details.Value<int>("multiplier")
         };
     }
