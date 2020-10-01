@@ -7,11 +7,12 @@ module.exports = {
         electronBuilder: {
             nodeIntegration: true,
             builderOptions: {
-                build:{
-                    productName: "LettuceIO",
-                    uninstallDisplayName: "LettuceIO",
-                    artifactName: "LettuceIO.${ext}",
+                productName: "Lettuce.IO",
+                win: {
+                    target: ["zip"]
                 },
+
+                publish: ['github'],
                 extraFiles: [
                     {
                         from: "LettuceIO",
