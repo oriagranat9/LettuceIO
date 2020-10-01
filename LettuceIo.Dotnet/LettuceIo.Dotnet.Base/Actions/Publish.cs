@@ -27,8 +27,9 @@ namespace LettuceIo.Dotnet.Base.Actions
         private readonly Limits _limits;
         private readonly string _exchange;
         private readonly string? _queue;
-        private readonly IReadOnlyCollection<Message> _messages;
+        private readonly string _folderPath;
         private readonly PublishOptions _options;
+        private readonly JsonSerializerSettings _serializerSettings;
         private readonly ISubject<ActionMetrics> _statsSubject = new Subject<ActionMetrics>();
         private IModel? _channel;
         private readonly Random _random = new Random();
@@ -48,11 +49,9 @@ namespace LettuceIo.Dotnet.Base.Actions
             _limits = limits;
             _exchange = exchange;
             _queue = queue;
+            _folderPath = folderPath;
             _options = options;
-            _messages = Directory.EnumerateFiles(folderPath, "*.json")
-                .Select(File.ReadAllText)
-                .Select(text => JsonConvert.DeserializeObject<Message>(text, serializerSettings))
-                .ToArray() as Message[] ?? throw new ArgumentException("No messages in directory");
+            _serializerSettings = serializerSettings;
         }
 
         public void Start()
@@ -60,7 +59,14 @@ namespace LettuceIo.Dotnet.Base.Actions
             if (Status != Status.Pending) throw new InvalidOperationException("The action was started already");
             Status = Status.Running;
 
-            IEnumerable<Message> messages = _messages.ToList();
+            var arr = Directory.EnumerateFiles(_folderPath, "*.json")
+                .Select(File.ReadAllText)
+                .Select(text => JsonConvert.DeserializeObject<Message?>(text, _serializerSettings))
+                .WhereNotNull()
+                .ToArray();
+            if(arr.Length == 0) throw new ArgumentException("No messages in directory");
+            
+            IEnumerable<Message> messages = arr;
             if (_options.Shuffle) messages = messages.Shuffle(_random);
 
             //Todo: move to separate method

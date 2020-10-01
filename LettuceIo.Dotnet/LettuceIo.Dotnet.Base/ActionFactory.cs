@@ -20,7 +20,10 @@ namespace LettuceIo.Dotnet.Base
         public RecordOptions RecordOptions = new RecordOptions();
 
         public JsonSerializerSettings SerializerSettings = new JsonSerializerSettings
-            {Formatting = Formatting.Indented};
+        {
+            Formatting = Formatting.Indented,
+            Error = (_, error) => error.ErrorContext.Handled = true //handles failed parsing
+        };
 
         public IAction Build() => ActionType switch
         {
