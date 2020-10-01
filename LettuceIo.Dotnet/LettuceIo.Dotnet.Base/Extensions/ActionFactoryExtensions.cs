@@ -21,7 +21,6 @@ namespace LettuceIo.Dotnet.Base.Extensions
             return f;
         }
 
-
         public static void ConfigureEntities(this ActionFactory f, JToken details, ActionType type, string id)
         {
             switch (details.Value<string>("type"))
