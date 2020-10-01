@@ -43,7 +43,7 @@ function initComm(isDevelopment) {
 
         b.connectTo("dotnet", "run", "--project", "./LettuceIo.DotNet/LettuceIo.Dotnet.ConsoleHost")
     } else {
-        throw "Currently only supporting dev";
+        b.connectTo("./LettuceIO/LettuceIO.BE.exe")
     }
     cgi = b.build();
 

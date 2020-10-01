@@ -5,7 +5,16 @@ module.exports = {
     },
     pluginOptions: {
         electronBuilder: {
-            nodeIntegration: true
+            nodeIntegration: true,
+            builderOptions: {
+                extraFiles: [
+                    {
+                        from: "LettuceIO",
+                        to: "LettuceIO",
+                        filter: ["**/*"]
+                    }
+                ]
+            }
         }
     }
 };
