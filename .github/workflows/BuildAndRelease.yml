@@ -25,9 +25,6 @@ jobs:
       - name: Building .Net Backend
         run: dotnet publish -r win-x64 ./LettuceIo.Dotnet --output ./LettuceIO
       
-      - name: Download NPM Dependencies
-        run: npm install
-      
 #       - name: Build Electron And Upload Release
 #         run: npm run electron:build -- -p onTag
 #         env:
