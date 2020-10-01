@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Collections.ObjectModel;
 using System.Linq;
 
 namespace LettuceIo.Dotnet.Base.Extensions
@@ -13,6 +12,7 @@ namespace LettuceIo.Dotnet.Base.Extensions
             while (true)
                 foreach (var i in items)
                     yield return i;
+            // ReSharper disable once IteratorNeverReturns
         }
 
         public static IEnumerable<T> Shuffle<T>(this IEnumerable<T> enumerable, Random rng) =>
