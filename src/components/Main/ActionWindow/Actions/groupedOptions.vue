@@ -20,8 +20,9 @@
                                  :disabled="!value[option.key]['status']"/>
                 </div>
             </div>
-            <progress-input :value="progressValues !== undefined ? progressValues[index] : 0" :disabled="!value[option.key]['status']"
+            <progress-input :id="$id('progress' + index)" :value="progressValues !== undefined ? progressValues[index] : 0" :disabled="!value[option.key]['status']"
                             style="margin-left: 16px"/>
+            <b-tooltip :target="$id('progress' + index)" triggers="hover">{{progressValues[index]}} %</b-tooltip>
         </div>
     </div>
 </template>

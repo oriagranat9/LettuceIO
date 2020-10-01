@@ -41,7 +41,7 @@
         --brand-secondary: #07b01d;
         --border-color: #01b026;
         --border-secondary-color: #0bb008;
-        --shadow-color: rgba(0, 227, 42, 0.25)
-
+        --shadow-color: rgba(0, 227, 42, 0.25);
+        --accent-warning: #FFB400;
     }
 </style>

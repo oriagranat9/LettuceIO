@@ -45,9 +45,11 @@
                     <div class="col-lg-2 d-flex justify-content-center">
                         <button style="width: 90%" @click="$emit('action')" v-bind:disabled="!isValid"
                                 class="btn btn-dark lettuce-button align-self-center">
-                            <span v-if="$store.getters.getCurrentTab.status['isLoading']" class="spinner-border spinner-border-sm" role="status" aria-hidden="true"/>
+                            <span v-if="$store.getters.getCurrentTab.status['isLoading']"
+                                  class="spinner-border spinner-border-sm" role="status" aria-hidden="true"/>
                             <span v-if="$store.getters.getCurrentTab.status['isLoading']" class="sr-only"/>
-                            {{$store.getters.getCurrentTab.status['isLoading'] ? "Loading..." : ($store.getters.getCurrentTab.status['isActive'] ? "stop" : "start")}}
+                            {{$store.getters.getCurrentTab.status['isLoading'] ? "Loading..." :
+                            ($store.getters.getCurrentTab.status['isActive'] ? "stop" : "start")}}
                         </button>
                     </div>
                 </div>
@@ -158,6 +160,14 @@
                     if (this.connectionDetails.apiPort !== "") {
                         this.connectionString += `:${this.connectionDetails.apiPort}`
                     }
+                }
+            }
+        },
+        watch: {
+            connectionDetails: {
+                handler() {
+                    this.connectionString = "";
+                    this.minimizeConnectionString()
                 }
             }
         },

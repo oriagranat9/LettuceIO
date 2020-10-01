@@ -9,8 +9,9 @@
                            @mousedown.middle="e=> {e.stopPropagation(); deleteTab(index);}"
                            v-bind:class="index === $store.getters.getTabIndex ? 'activeTab': ''"
                         >
-                            <div class="tabName">
-                                {{tab.name}}
+                            <div class="tabName" style="font-size: small; overflow-x: hidden">
+                                <b-icon v-bind:icon="tab.actionType === 'Record' ? 'download' : 'upload'" :color="tab.status.isActive ? 'var(--accent-warning)' : 'var(--brand-primary)'"/>
+                                {{tab.connection.apiHostName === "" ? "Untitled Action" : tab.connection.apiHostName}}
                             </div>
                             <b-icon scale="1.2" icon="x" class="tabIcon"
                                     @click="e => {e.stopPropagation(); deleteTab(index)}"/>
@@ -50,7 +51,10 @@
                 this.$store.commit('changeTabIndex', index)
             },
             deleteTab(index) {
-                this.$emit("delete", index)
+                this.$emit("delete", index);
+                if (this.tabs.length === 0){
+                    this.createTab();
+                }
             },
             createTab() {
                 this.$store.commit('createTab')
@@ -99,11 +103,11 @@
     .tabName {
         line-height: 20px;
         overflow: hidden;
-        text-overflow: clip;
+        text-overflow: ellipsis;
         white-space: nowrap;
         vert-align: middle;
         vertical-align: middle;
-        max-width: 200px;
+        max-width: 150px;
         color: ghostwhite !important;
     }
 

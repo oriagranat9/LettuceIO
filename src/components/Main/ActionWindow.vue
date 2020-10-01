@@ -43,7 +43,7 @@
             startAction() {
                 const self = this;
                 // eslint-disable-next-line no-unused-vars
-                const {name, tmpLists, status, ...sendDetails} = this.$store.getters.getCurrentTab;
+                const {tmpLists, status, ...sendDetails} = this.$store.getters.getCurrentTab;
                 const selectedTab = this.$store.getters.getCurrentTab;
                 //check if there's no routing key for recording from exchange
                 if (sendDetails.actionType === "Record" && sendDetails.selectedOption.type === "Exchange" && sendDetails.actionDetails.bindingRoutingKey === "") {
