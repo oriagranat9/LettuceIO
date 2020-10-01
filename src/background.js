@@ -1,8 +1,10 @@
 'use strict'
+/* global __static */
 
 import {app, protocol, BrowserWindow} from 'electron'
 import {createProtocol} from 'vue-cli-plugin-electron-builder/lib'
 import installExtension, {VUEJS_DEVTOOLS} from 'electron-devtools-installer'
+import path from 'path'
 
 const isDevelopment = process.env.NODE_ENV !== 'production';
 import {initComm} from './backend/communication'
@@ -23,6 +25,7 @@ function createWindow() {
         minHeight: 620,
         minWidth: 1000,
         title: "Lettuce.IO",
+        icon: path.join(__static, 'icon.png'),
         frame: false,
         darkTheme: true,
         webPreferences: {
