@@ -24,9 +24,10 @@ jobs:
       
       - name: Building .Net Backend
         run: dotnet publish -r win-x64 ./LettuceIo.Dotnet --output ./LettuceIO
-       
-      - name: Setup Electron Builder
-        uses: samuelmeuli/action-electron-builder@v1.6.0
-        with:
-          github_token: ${{ secrets.github_token }}
-          release: ${{ startsWith(github.ref, 'refs/tags/*') }}
+      
+      - name: Download NPM Dependencies
+        run: npm install
+      
+      - name: Build Electron
+        run: npm run electron:build
+      
