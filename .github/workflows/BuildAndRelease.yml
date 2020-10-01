@@ -24,11 +24,6 @@ jobs:
       
       - name: Building .Net Backend
         run: dotnet publish -r win-x64 ./LettuceIo.Dotnet --output ./LettuceIO
-      
-#       - name: Build Electron And Upload Release
-#         run: npm run electron:build -- -p onTag
-#         env:
-#           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Build/release Electron app
         uses: samuelmeuli/action-electron-builder@v1
