@@ -1,8 +1,6 @@
 name: Build/release
 on:
-  push:
-    tags: 
-      - '*'
+  workflow_dispatch
 
 # A workflow run is made up of one or more jobs that can run sequentially or in parallel
 jobs:
@@ -28,13 +26,7 @@ jobs:
       - name: Download NPM Dependencies
         run: npm install
       
-      - name: Build Electron
-        run: npm run electron:build
-      
-      - name: Upload binaries to release
-        uses: svenstaro/upload-release-action@v2
-        with:
-          repo_token: ${{ secrets.GITHUB_TOKEN }}
-          file: dist_electron/LettuceIO.exe
-          asset_name: LettuceIO.exe
-          tag: ${{ github.ref }}
+      - name: Build Electron And Upload Release
+        run: npm run electron:build -- -p always
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
