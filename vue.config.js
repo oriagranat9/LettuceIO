@@ -9,9 +9,9 @@ module.exports = {
             builderOptions: {
                 productName: "Lettuce.IO",
                 win: {
-                    target: ["zip"]
+                    target: ["zip"],
+                    artifactName: "Lettuce.IO.v${version}.${ext}",
                 },
-
                 publish: ['github'],
                 extraFiles: [
                     {
