@@ -31,13 +31,20 @@ jobs:
       - name: Build Electron
         run: npm run electron:build
   
-      - name: Upload Release
-        uses: actions/upload-release-asset@v1.0.2
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        with:
-          upload_url: ${{ steps.get_release_url.outputs.upload_url }} # This pulls from the CREATE RELEASE step above, referencing it's ID to get its outputs object, which include a `upload_url`. See this blog post for more info: https://jasonet.co/posts/new-features-of-github-actions/#passing-data-to-future-steps
-          asset_path: ./dist_electron/lettuce Setup *.exe
-          asset_name: lettuce Setup *.exe
-          asset_content_type: application/octet-stream
+#       - name: Upload Release
+#         uses: actions/upload-release-asset@v1.0.2
+#         env:
+#           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+#         with:
+#           upload_url: ${{ steps.get_release_url.outputs.upload_url }} # This pulls from the CREATE RELEASE step above, referencing it's ID to get its outputs object, which include a `upload_url`. See this blog post for more info: https://jasonet.co/posts/new-features-of-github-actions/#passing-data-to-future-steps
+#           asset_path: ./dist_electron/lettuce Setup *.exe
+#           asset_name: lettuce Setup *.exe
+#           asset_content_type: application/octet-stream
       
+      - name: Upload binaries to release
+        uses: svenstaro/upload-release-action@v2.1.1
+        with:
+          repo_token: ${{ secrets.GITHUB_TOKEN }}
+          file: dist_electron/lettuce Setup *.exe
+          asset_name: dist_electron/lettuce Setup *.exe
+          tag: ${{ github.ref }}
