@@ -1,5 +1,8 @@
 name: Build/release
-on: [workflow_dispatch]
+on:
+  push:
+    tags: 
+      - '*'
 
 # A workflow run is made up of one or more jobs that can run sequentially or in parallel
 jobs:
@@ -26,6 +29,6 @@ jobs:
         run: npm install
       
       - name: Build Electron And Upload Release
-        run: npm run electron:build -- -p always
+        run: npm run electron:build -- -p onTag
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
