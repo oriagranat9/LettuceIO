@@ -70,6 +70,8 @@
                             }
                         })
                     } else {
+                        this.$set(selectedTab['status'], "isLoading", false);
+                        this.$set(selectedTab['status'], "isActive", false);
                         console.error(state['message'])
                     }
                 });
