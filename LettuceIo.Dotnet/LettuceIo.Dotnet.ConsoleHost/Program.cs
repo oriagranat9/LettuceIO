@@ -31,12 +31,19 @@ namespace LettuceIo.Dotnet.ConsoleHost
             var action = factory.Build();
             if (!ActiveActions.TryAdd(id, action))
                 throw new Exception($"Key \"{id}\" already exists in the dictionary");
-            action.Stats.Subscribe(stats => Connection.Send(id, JObject.FromObject(stats)),
+            action.Stats.Subscribe(
+                onNext: stats => Connection.Send(id, JObject.FromObject(stats)),
+                onError: exception =>
+                {
+                    Connection.Send(id, new JObject(new JProperty("error", JObject.FromObject(exception))));
+                    TerminateAction(id);
+                },
                 onCompleted: () =>
                 {
                     Connection.Send(id, new JObject(new JProperty("isActive", false)));
                     TerminateAction(id);
-                });
+                }
+            );
             action.Start();
             return true;
         }

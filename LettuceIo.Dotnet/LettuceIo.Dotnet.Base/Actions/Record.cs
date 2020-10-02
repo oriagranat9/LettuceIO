@@ -4,6 +4,7 @@ using System.IO;
 using System.Reactive;
 using System.Reactive.Linq;
 using System.Reactive.Subjects;
+using System.Threading.Tasks;
 using LettuceIo.Dotnet.Base.Extensions;
 using LettuceIo.Dotnet.Core.Enums;
 using LettuceIo.Dotnet.Core.Interfaces;
@@ -56,8 +57,10 @@ namespace LettuceIo.Dotnet.Base.Actions
             if (Status != Status.Pending) throw new InvalidOperationException("The action was started already");
             Status = Status.Running;
             _channel = _connectionFactory.CreateConnection().CreateModel();
+            _channel.ModelShutdown += (_, args) => OnError(new Exception(args.ReplyText));
             var consumer = new EventingBasicConsumer(_channel);
-            _subscription = Observable.FromEventPattern<BasicDeliverEventArgs>(handler => consumer.Received += handler,
+            _subscription = Observable.FromEventPattern<BasicDeliverEventArgs>(
+                    handler => consumer.Received += handler,
                     handler => consumer.Received -= handler)
                 .TimeInterval()
                 .Select(ToMessage)
@@ -89,7 +92,15 @@ namespace LettuceIo.Dotnet.Base.Actions
             _statsSubject.OnCompleted();
             _durationStopWatch.Stop();
             _channel?.BasicCancel(_consumerTag);
-            if (_exchange != null) _channel?.QueueDelete(_queue);//TODO: check if it's necessary with autoDelete on the queue
+            if (_exchange != null)
+                _channel?.QueueDelete(_queue); //TODO: check if it's necessary with autoDelete on the queue
+        }
+
+        private void OnError(Exception exception)
+        {
+            if (Status == Status.Stopped) return;
+            _statsSubject.OnError(exception);
+            Stop();
         }
 
         private void OnMessage(Message message)
@@ -98,6 +109,7 @@ namespace LettuceIo.Dotnet.Base.Actions
             var path = Path.Combine(_folderPath, name);
             //TODO message save as base 64 string ?
             var task = File.WriteAllTextAsync(path, JsonConvert.SerializeObject(message, _serializerSettings));
+            task.ContinueWith(t => OnError(t.Exception!), TaskContinuationOptions.OnlyOnFaulted);
             _currentMetrics.Duration = _durationStopWatch.Elapsed;
             _currentMetrics.Count++;
             _currentMetrics.SizeKB += message.SizeKB();

@@ -64,8 +64,8 @@ namespace LettuceIo.Dotnet.Base.Actions
                 .Select(text => JsonConvert.DeserializeObject<Message?>(text, _serializerSettings))
                 .WhereNotNull()
                 .ToArray();
-            if(arr.Length == 0) throw new ArgumentException("No messages in directory");
-            
+            if (arr.Length == 0) throw new ArgumentException("No messages in directory");
+
             IEnumerable<Message> messages = arr;
             if (_options.Shuffle) messages = messages.Shuffle(_random);
 
@@ -91,6 +91,7 @@ namespace LettuceIo.Dotnet.Base.Actions
 
             var connection = _connectionFactory.CreateConnection();
             _channel = connection.CreateModel();
+            _channel.ModelShutdown += (_, args) => OnError(new Exception(args.ReplyText));
 
             //Declare extra stuff if needed
             if (_queue != null)
@@ -131,6 +132,7 @@ namespace LettuceIo.Dotnet.Base.Actions
                 _publishTasks.AddRange(buckets.Select(bucket => new Task(() =>
                 {
                     var channel = connection.CreateModel();
+                    channel.ModelShutdown += (_, args) => OnError(new Exception(args.ReplyText));
                     var timer = new Timer();
                     foreach (var message in bucket)
                     {
@@ -149,7 +151,12 @@ namespace LettuceIo.Dotnet.Base.Actions
                     }
                 }, _cts.Token)).ToArray());
             }
-
+            // notify if error and stop when any of the tasks finish
+            Task.WhenAny(_publishTasks).ContinueWith(task =>
+            {
+                if (task.IsFaulted) OnError(task.Exception!);
+                Stop();
+            }, _cts.Token);
 
             _durationStopWatch.Start();
             _timerSubscription = Observable.Interval(_updateInterval).Subscribe(_ =>
@@ -157,7 +164,6 @@ namespace LettuceIo.Dotnet.Base.Actions
                 _currentMetrics.Duration = _durationStopWatch.Elapsed;
                 _statsSubject.OnNext(_currentMetrics);
             });
-            Task.WhenAny(_publishTasks).ContinueWith(_ => Stop());
             _publishTasks.ForEach(task => task.Start());
         }
 
@@ -172,6 +178,13 @@ namespace LettuceIo.Dotnet.Base.Actions
             _statsSubject.OnCompleted();
             _timerSubscription?.Dispose();
             if (_queue != null) _channel.ExchangeDelete(_exchange);
+        }
+
+        private void OnError(Exception exception)
+        {
+            if (Status == Status.Stopped) return;
+            _statsSubject.OnError(exception);
+            Stop();
         }
 
         private void BasicPublish(IModel channel, Message message) =>
