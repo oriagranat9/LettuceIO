@@ -201,7 +201,7 @@
                     let isUriValid = tab.connection.amqpHostName !== "" && tab.connection.amqpPort !== "";
                     let isConnectionValid = isUserValid && isUriValid && tab.connection.vhost !== "";
                     let isOptionValid = tab.selectedOption.name !== "" && tab.selectedOption.type !== "";
-                    let hasFolderPath = tab.folderPath !== "";
+                    let hasFolderPath = tab.folderPath !== undefined;
                     return isConnectionValid && isOptionValid && hasFolderPath;
                 }
             }

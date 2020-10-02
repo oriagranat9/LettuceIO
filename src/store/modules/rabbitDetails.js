@@ -10,7 +10,7 @@ export function getTemplate() {
         },
         id: uuid4(),
         actionType: "Record",
-        folderPath: "",
+        folderPath: undefined,
         selectedOption: {
             type: "",
             name: ""
