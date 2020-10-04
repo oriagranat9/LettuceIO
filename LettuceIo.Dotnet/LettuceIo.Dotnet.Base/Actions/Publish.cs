@@ -19,7 +19,7 @@ namespace LettuceIo.Dotnet.Base.Actions
     public class Publish : IAction
     {
         public Status Status { get; private set; } = Status.Pending;
-        public IObservable<ActionMetrics> Stats => _statsSubject;
+        public IObservable<Metrics> Metrics => _statsSubject;
 
         #region fields
 
@@ -30,15 +30,16 @@ namespace LettuceIo.Dotnet.Base.Actions
         private readonly string _folderPath;
         private readonly PublishOptions _options;
         private readonly JsonSerializerSettings _serializerSettings;
-        private readonly ISubject<ActionMetrics> _statsSubject = new Subject<ActionMetrics>();
+        private readonly ISubject<Metrics> _statsSubject = new Subject<Metrics>();
         private IModel? _channel;
         private readonly Random _random = new Random();
         private readonly CancellationTokenSource _cts = new CancellationTokenSource();
-        private ActionMetrics _currentMetrics = new ActionMetrics {Count = 0, Duration = TimeSpan.Zero, SizeKB = 0d};
+        private Metrics _currentMetrics = new Metrics {Count = 0, Duration = TimeSpan.Zero, SizeKB = 0d};
         private readonly Stopwatch _durationStopWatch = new Stopwatch();
         private IDisposable? _timerSubscription;
         private readonly TimeSpan _updateInterval = TimeSpan.FromMilliseconds(100);
         private readonly List<Task> _publishTasks = new List<Task>();
+        private IConnection? _connection;
 
         #endregion
 
@@ -89,8 +90,8 @@ namespace LettuceIo.Dotnet.Base.Actions
             messages = messages.Select(modify);
 
 
-            var connection = _connectionFactory.CreateConnection();
-            _channel = connection.CreateModel();
+            _connection = _connectionFactory.CreateConnection();
+            _channel = _connection.CreateModel();
             _channel.ModelShutdown += (_, args) => OnError(new Exception(args.ReplyText));
 
             //Declare extra stuff if needed
@@ -131,7 +132,7 @@ namespace LettuceIo.Dotnet.Base.Actions
                 if (_options.Loop) buckets = buckets.Select(EnumerableExtensions.Loop);
                 _publishTasks.AddRange(buckets.Select(bucket => new Task(() =>
                 {
-                    var channel = connection.CreateModel();
+                    var channel = _connection.CreateModel();
                     channel.ModelShutdown += (_, args) => OnError(new Exception(args.ReplyText));
                     var timer = new Timer();
                     foreach (var message in bucket)
@@ -178,6 +179,7 @@ namespace LettuceIo.Dotnet.Base.Actions
             _statsSubject.OnCompleted();
             _timerSubscription?.Dispose();
             if (_queue != null) _channel.ExchangeDelete(_exchange);
+            _connection?.Close();
         }
 
         private void OnError(Exception exception)

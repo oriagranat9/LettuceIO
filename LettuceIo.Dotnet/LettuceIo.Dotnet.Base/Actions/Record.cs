@@ -18,7 +18,7 @@ namespace LettuceIo.Dotnet.Base.Actions
     public class Record : IAction
     {
         public Status Status { get; private set; } = Status.Pending;
-        public IObservable<ActionMetrics> Stats => _statsSubject;
+        public IObservable<Metrics> Metrics => _statsSubject;
 
         #region fields
 
@@ -30,13 +30,14 @@ namespace LettuceIo.Dotnet.Base.Actions
         private readonly string _folderPath;
         private readonly JsonSerializerSettings _serializerSettings;
         private IModel? _channel;
-        private ActionMetrics _currentMetrics = new ActionMetrics {Count = 0, Duration = TimeSpan.Zero, SizeKB = 0d};
-        private readonly ISubject<ActionMetrics> _statsSubject = new Subject<ActionMetrics>();
+        private Metrics _currentMetrics = new Metrics {Count = 0, Duration = TimeSpan.Zero, SizeKB = 0d};
+        private readonly ISubject<Metrics> _statsSubject = new Subject<Metrics>();
         private readonly Stopwatch _durationStopWatch = new Stopwatch();
         private string? _consumerTag;
         private IDisposable? _subscription;
         private IDisposable? _timerSubscription;
         private readonly TimeSpan _updateInterval = TimeSpan.FromMilliseconds(100);
+        private IConnection? _connection;
 
         #endregion
 
@@ -56,7 +57,8 @@ namespace LettuceIo.Dotnet.Base.Actions
         {
             if (Status != Status.Pending) throw new InvalidOperationException("The action was started already");
             Status = Status.Running;
-            _channel = _connectionFactory.CreateConnection().CreateModel();
+            _connection = _connectionFactory.CreateConnection();
+            _channel = _connection.CreateModel();
             _channel.ModelShutdown += (_, args) => OnError(new Exception(args.ReplyText));
             var consumer = new EventingBasicConsumer(_channel);
             _subscription = Observable.FromEventPattern<BasicDeliverEventArgs>(
@@ -94,6 +96,7 @@ namespace LettuceIo.Dotnet.Base.Actions
             _channel?.BasicCancel(_consumerTag);
             if (_exchange != null)
                 _channel?.QueueDelete(_queue); //TODO: check if it's necessary with autoDelete on the queue
+            _connection?.Close();
         }
 
         private void OnError(Exception exception)

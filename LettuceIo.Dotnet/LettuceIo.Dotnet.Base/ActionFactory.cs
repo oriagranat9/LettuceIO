@@ -8,7 +8,7 @@ using RabbitMQ.Client;
 
 namespace LettuceIo.Dotnet.Base
 {
-    public class ActionFactory
+    public class ActionFactory : IActionFactory
     {
         public ActionType ActionType;
         public string? FolderPath;
@@ -25,7 +25,7 @@ namespace LettuceIo.Dotnet.Base
             Error = (_, error) => error.ErrorContext.Handled = true //handles failed parsing
         };
 
-        public IAction Build() => ActionType switch
+        public IAction CreateAction() => ActionType switch
         {
             ActionType.Record => new Record(ConnectionFactory!, Limits, Exchange, Queue!, FolderPath!, RecordOptions,
                 SerializerSettings),
