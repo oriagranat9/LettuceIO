@@ -33,13 +33,13 @@ namespace LettuceIo.Dotnet.ConsoleHost
                 metrics => Connection.Send(id, JObject.FromObject(new {metrics})),
                 error =>
                 {
-                    Connection.Send(id, JObject.FromObject(new {error}));
                     TerminateAction(id);
+                    Connection.Send(id, JObject.FromObject(new {error, metrics = new {isActive = false}}));
                 },
                 () =>
                 {
-                    Connection.Send(id, JObject.FromObject(new {metrics = new {isActive = false}}));
                     TerminateAction(id);
+                    Connection.Send(id, JObject.FromObject(new {metrics = new {isActive = false}}));
                 });
             action.Start();
             return true;
