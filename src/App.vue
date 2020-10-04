@@ -26,6 +26,15 @@ export default {
   position: absolute;
 }
 
+.Vue-Toastification__toast {
+  max-width: 300px !important;
+
+}
+
+.Vue-Toastification__toast-body {
+  font-size: small;
+}
+
 .fullPage {
   height: 100% !important;
   width: 100% !important;

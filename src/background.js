@@ -1,13 +1,13 @@
 'use strict'
 /* global __static */
 
-import {app, protocol, BrowserWindow} from 'electron'
+import {app, BrowserWindow, protocol} from 'electron'
 import {createProtocol} from 'vue-cli-plugin-electron-builder/lib'
 import installExtension, {VUEJS_DEVTOOLS} from 'electron-devtools-installer'
 import path from 'path'
+import {initComm} from './backend/communication'
 
 const isDevelopment = process.env.NODE_ENV !== 'production';
-import {initComm} from './backend/communication'
 // Keep a global reference of the window object, if you don't, the window will
 // be closed automatically when the JavaScript object is garbage collected.
 let win;

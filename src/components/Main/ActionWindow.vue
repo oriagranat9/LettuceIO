@@ -58,10 +58,30 @@ export default {
           };
 
           self.$ipc.on(sendDetails['id'], (event, message) => {
-            for (let key in message) {
-              if (Object.prototype.hasOwnProperty.call(message, key)) {
-                this.$set(selectedTab['status'], key, message[key])
+            if (Object.prototype.hasOwnProperty.call(message, "metrics")) {
+              for (let key in message['metrics']) {
+                if (Object.prototype.hasOwnProperty.call(message['metrics'], key)) {
+                  this.$set(selectedTab['status'], key, message['metrics'][key])
+                }
               }
+            }
+            if (Object.prototype.hasOwnProperty.call(message, 'error')) {
+              console.log(message['error']);
+              this.$toast.error(message['error']['Message'], {
+                position: "bottom-right",
+                timeout: false,
+                closeOnClick: true,
+                pauseOnFocusLoss: false,
+                pauseOnHover: false,
+                draggable: false,
+                showCloseButtonOnHover: false,
+                hideProgressBar: false,
+                closeButton: false,
+                icon: true,
+                onClick: function () {
+                  self.$store.commit("changeTabById", selectedTab.id);
+                }
+              });
             }
             if (!selectedTab['status']['isActive']) {
               self.$ipc.removeAllListeners(sendDetails['id']);
