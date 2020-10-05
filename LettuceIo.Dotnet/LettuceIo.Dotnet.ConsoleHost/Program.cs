@@ -2,6 +2,7 @@
 using System.Collections.Concurrent;
 using ElectronCgi.DotNet;
 using LettuceIo.Dotnet.Base;
+using LettuceIo.Dotnet.Core.Enums;
 using LettuceIo.Dotnet.Core.Interfaces;
 using Newtonsoft.Json.Linq;
 
@@ -41,13 +42,14 @@ namespace LettuceIo.Dotnet.ConsoleHost
                     TerminateAction(id);
                     Connection.Send(id, JObject.FromObject(new {metrics = new {isActive = false}}));
                 });
-            action.Start();
+            action.Start(); //todo: investigate safeHandle instead of try catch on action.Start()
+
             return true;
         }
 
         private static void TerminateAction(string id)
         {
-            if (ActiveActions.TryRemove(id, out var action)) action.Stop();
+            if (ActiveActions.TryRemove(id, out var action) && action.Status != Status.Stopped) action.Stop();
         }
     }
 }

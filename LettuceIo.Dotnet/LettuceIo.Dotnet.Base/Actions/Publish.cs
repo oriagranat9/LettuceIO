@@ -26,103 +26,69 @@ namespace LettuceIo.Dotnet.Base.Actions
         private readonly IConnectionFactory _connectionFactory;
         private readonly Limits _limits;
         private readonly string _exchange;
-        private readonly string? _queue;
         private readonly string _folderPath;
         private readonly PublishOptions _options;
         private readonly JsonSerializerSettings _serializerSettings;
-        private readonly ISubject<Metrics> _statsSubject = new Subject<Metrics>();
-        private IModel? _channel;
-        private readonly Random _random = new Random();
-        private readonly CancellationTokenSource _cts = new CancellationTokenSource();
+        private readonly TimeSpan _updateInterval;
         private Metrics _currentMetrics = new Metrics {Count = 0, Duration = TimeSpan.Zero, SizeKB = 0d};
+        private readonly ISubject<Metrics> _statsSubject = new Subject<Metrics>();
+        private readonly Random _random = new Random();
         private readonly Stopwatch _durationStopWatch = new Stopwatch();
-        private IDisposable? _timerSubscription;
-        private readonly TimeSpan _updateInterval = TimeSpan.FromMilliseconds(100);
+        private IDisposable? _updateTick;
         private readonly List<Task> _publishTasks = new List<Task>();
         private IConnection? _connection;
+        private readonly CancellationTokenSource _cts = new CancellationTokenSource();
+        private bool _disposed;
 
         #endregion
 
-        public Publish(IConnectionFactory connectionFactory, Limits limits, string exchange, string? queue,
-            string folderPath, PublishOptions options, JsonSerializerSettings serializerSettings)
+        public Publish(IConnectionFactory connectionFactory, Limits limits, string exchange,
+            string folderPath, PublishOptions options, JsonSerializerSettings serializerSettings,
+            TimeSpan updateInterval)
         {
             _connectionFactory = connectionFactory;
             _limits = limits;
             _exchange = exchange;
-            _queue = queue;
             _folderPath = folderPath;
             _options = options;
             _serializerSettings = serializerSettings;
+            _updateInterval = updateInterval;
         }
 
         public void Start()
         {
-            if (Status != Status.Pending) throw new InvalidOperationException("The action was started already");
+            if (Status != Status.Pending) throw new InvalidOperationException("The action is not pending activation.");
             Status = Status.Running;
 
-            var arr = Directory.EnumerateFiles(_folderPath, "*.json")
-                .Select(File.ReadAllText)
-                .Select(text => JsonConvert.DeserializeObject<Message?>(text, _serializerSettings))
-                .WhereNotNull()
-                .ToArray();
-            if (arr.Length == 0) throw new ArgumentException("No messages in directory");
-
-            IEnumerable<Message> messages = arr;
+            IEnumerable<Message> messages = LoadMessages();
             if (_options.Shuffle) messages = messages.Shuffle(_random);
-
-            //Todo: move to separate method
-            //Handle RoutingKeyOptions
-            Func<Message, Message> modify = _options.RoutingKeyDetails.RoutingKeyType switch
-            {
-                PublishRoutingKeyType.Random => message =>
-                {
-                    message.RoutingKey =
-                        _random.Next().ToString(); //TODO: check if is random with full string space for C.H exchange
-                    return message;
-                },
-                PublishRoutingKeyType.Custom => message =>
-                {
-                    message.RoutingKey = _options.RoutingKeyDetails.CustomValue;
-                    return message;
-                },
-                _ => message => message
-            };
-            messages = messages.Select(modify);
-
+            messages = messages.Select(RoutingKeyModifier()); //Handle RoutingKeyOptions
 
             _connection = _connectionFactory.CreateConnection();
-            _channel = _connection.CreateModel();
-            _channel.ModelShutdown += (_, args) => OnError(new Exception(args.ReplyText));
-
-            //Declare extra stuff if needed
-            if (_queue != null)
-            {
-                _channel.ExchangeDeclare(_exchange, "fanout",
-                    autoDelete: true); //TODO: make sure exchange is deleted after
-                _channel.QueueBind(_queue, _exchange, "");
-            }
-
 
             if (_options.Playback)
             {
                 if (_options.Loop) messages = messages.Loop();
                 _publishTasks.Add(new Task(() =>
                 {
+                    var channel = _connection.CreateModel();
                     var timer = new Timer();
                     foreach (var message in messages)
                     {
                         //check limits
-                        if (_cts.IsCancellationRequested || LimitsReached()) return;
+                        if (_cts.IsCancellationRequested || LimitsReached()) break;
 
                         //sleep before publish for current message timeDelta
                         timer.Sleep(message.TimeDelta);
 
                         //publish
-                        BasicPublish(_channel, message);
+                        channel.BasicPublish(_exchange, message);
 
                         //update metrics
                         UpdateMetrics(message);
                     }
+
+                    channel.Close();
                 }, _cts.Token));
             }
             else
@@ -133,15 +99,14 @@ namespace LettuceIo.Dotnet.Base.Actions
                 _publishTasks.AddRange(buckets.Select(bucket => new Task(() =>
                 {
                     var channel = _connection.CreateModel();
-                    channel.ModelShutdown += (_, args) => OnError(new Exception(args.ReplyText));
                     var timer = new Timer();
                     foreach (var message in bucket)
                     {
                         //check limits
-                        if (_cts.IsCancellationRequested || LimitsReached()) return;
+                        if (_cts.IsCancellationRequested || LimitsReached()) break;
 
                         //publish
-                        BasicPublish(channel, message);
+                        channel.BasicPublish(_exchange, message);
 
                         //update metrics
                         UpdateMetrics(message);
@@ -150,17 +115,20 @@ namespace LettuceIo.Dotnet.Base.Actions
                         timer.Sleep(
                             intervalMilliSeconds); //TODO: maybe remove sw handling so it is more precise here...
                     }
+
+                    channel.Close();
                 }, _cts.Token)).ToArray());
             }
-            // notify if error and stop when any of the tasks finish
+
+            //Notify if error and stop when any of the tasks finish
             Task.WhenAny(_publishTasks).ContinueWith(task =>
             {
-                if (task.IsFaulted) OnError(task.Exception!);
-                Stop();
+                if (task.Result.IsFaulted) OnError(task.Result.Exception!);
             }, _cts.Token);
 
+            //Start all
             _durationStopWatch.Start();
-            _timerSubscription = Observable.Interval(_updateInterval).Subscribe(_ =>
+            _updateTick = Observable.Interval(_updateInterval).Subscribe(_ =>
             {
                 _currentMetrics.Duration = _durationStopWatch.Elapsed;
                 _statsSubject.OnNext(_currentMetrics);
@@ -171,26 +139,27 @@ namespace LettuceIo.Dotnet.Base.Actions
         public void Stop()
         {
             if (Status == Status.Stopped) return;
-            if (Status != Status.Running) throw new InvalidOperationException("The action is not running");
             Status = Status.Stopped;
-            _cts.Cancel();
-            Task.WaitAll(_publishTasks.ToArray());
-            _publishTasks.ForEach(task => task.Dispose());
             _statsSubject.OnCompleted();
-            _timerSubscription?.Dispose();
-            if (_queue != null) _channel.ExchangeDelete(_exchange);
-            _connection?.Close();
+            Dispose();
         }
 
         private void OnError(Exception exception)
         {
             if (Status == Status.Stopped) return;
+            Status = Status.Stopped;
             _statsSubject.OnError(exception);
-            Stop();
+            Dispose();
         }
 
-        private void BasicPublish(IModel channel, Message message) =>
-            channel.BasicPublish(_exchange, message.RoutingKey, body: message.Body);
+        private void Dispose()
+        {
+            if (_disposed) return;
+            _disposed = true;
+            _cts.Cancel();
+            _updateTick?.Dispose();
+            _connection?.Close();
+        }
 
         private bool LimitsReached() => _limits.Amount <= _currentMetrics.Count ||
                                         _limits.Duration <= _currentMetrics.Duration ||
@@ -202,5 +171,32 @@ namespace LettuceIo.Dotnet.Base.Actions
             _currentMetrics.Duration = _durationStopWatch.Elapsed;
             _currentMetrics.SizeKB += message.SizeKB();
         }
+
+        private IEnumerable<Message> LoadMessages()
+        {
+            var arr = Directory.EnumerateFiles(_folderPath, "*.json")
+                .Select(File.ReadAllText)
+                .Select(text => JsonConvert.DeserializeObject<Message?>(text, _serializerSettings))
+                .WhereNotNull()
+                .ToArray();
+            if (arr.Length == 0) throw new ArgumentException("No messages in directory");
+            return arr;
+        }
+
+        private Func<Message, Message> RoutingKeyModifier() => _options.RoutingKeyDetails.RoutingKeyType switch
+        {
+            PublishRoutingKeyType.Random => message =>
+            {
+                message.RoutingKey =
+                    _random.Next().ToString(); /*TODO: check if is random with full string space for C.H exchange*/
+                return message;
+            },
+            PublishRoutingKeyType.Custom => message =>
+            {
+                message.RoutingKey = _options.RoutingKeyDetails.CustomValue;
+                return message;
+            },
+            _ => message => message
+        };
     }
 }

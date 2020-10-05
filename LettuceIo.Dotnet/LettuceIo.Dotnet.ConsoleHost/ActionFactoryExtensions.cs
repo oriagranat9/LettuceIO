@@ -28,7 +28,7 @@ namespace LettuceIo.Dotnet.ConsoleHost
             {
                 case "Queue":
                     f.Queue = details.Value<string>("name");
-                    if (type == ActionType.Publish) f.Exchange = Defaultname + id;
+                    if (type == ActionType.Publish) f.Exchange = ""; //Default AMQP exchange
                     break;
                 case "Exchange":
                     f.Exchange = details.Value<string>("name");
@@ -50,6 +50,7 @@ namespace LettuceIo.Dotnet.ConsoleHost
                         RateDetails = ToRateDetails(details["rateDetails"]!),
                         RoutingKeyDetails = ToRoutingKeyDetails(details["routingKeyDetails"]!)
                     };
+                    if (f.Exchange == "") f.PublishOptions.RoutingKeyDetails.CustomValue = f.Queue;
                     break;
                 case ActionType.Record:
                     f.RecordOptions = new RecordOptions
