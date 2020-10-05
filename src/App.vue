@@ -32,7 +32,7 @@ export default {
 }
 
 .Vue-Toastification__toast-body {
-  font-size: small;
+  font-size: small !important;
 }
 
 .fullPage {

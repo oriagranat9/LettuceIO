@@ -4,28 +4,30 @@
       <div class="form-group span">
         <div class="row span justify-content-start">
           <div class="col-lg-2 " style="margin-top: 5px">
-            <select-input v-model="actionType" text="Action Type" :options="options"/>
+            <select-input :disabled="disabled" v-model="actionType" text="Action Type" :options="options"/>
             <checkbox-input text="Advanced" v-model="showAdvanced"/>
           </div>
           <div class="col-lg-6">
             <div class="row">
               <div class="col-lg-9" style="margin-top: 5px">
                 <text-input v-model="connectionString" text="Connection String"
+                            :disabled="disabled"
                             @blur="()=> {parseConnectionString(); queryAllVhosts(); queryAmqp()}"
                             @focus="constructConnectionString"/>
               </div>
               <div class="col-md-3">
                 <text-input @blur="()=> {queryAllVhosts(); queryAmqp()}" class="space"
+                            :disabled="disabled"
                             v-model="connectionDetails.apiPort"
                             text="API Port"/>
               </div>
             </div>
             <div class="row" v-if="showAdvanced">
               <div class="col-lg-9" style="margin-top: 5px">
-                <text-input v-model="connectionDetails.amqpHostName" text="AMQP Hostname"/>
+                <text-input v-model="connectionDetails.amqpHostName" text="AMQP Hostname" :disabled="disabled"/>
               </div>
               <div class="col-md-3">
-                <text-input class="space" v-model="connectionDetails.amqpPort" text="AMQP Port"/>
+                <text-input class="space" v-model="connectionDetails.amqpPort" text="AMQP Port" :disabled="disabled"/>
               </div>
             </div>
           </div>
@@ -33,12 +35,13 @@
           <div class="col-lg-2">
             <text-input @blur="()=> {queryAllVhosts(); queryAmqp()}" v-model="connectionDetails.username"
                         class="space"
-                        text="Username"/>
+                        text="Username" :disabled="disabled"/>
             <text-input @blur="()=> {queryAllVhosts(); queryAmqp()}" v-model="connectionDetails.password"
                         class="space"
-                        text="Password"/>
+                        text="Password" :disabled="disabled"/>
             <select-input @input="()=> {queryAllVhosts(); queryAmqp()}" v-model="connectionDetails.vhost"
                           :options="queriedList.vhosts"
+                          :disabled="disabled"
                           class="space"
                           text="VHost"/>
           </div>
@@ -67,6 +70,7 @@ import checkboxInput from "../../inputs/checkboxInput";
 
 export default {
   name: "Connection",
+  props: ['disabled'],
   components: {
     textInput,
     selectInput,
