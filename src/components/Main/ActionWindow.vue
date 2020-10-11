@@ -2,9 +2,10 @@
   <div>
     <Tabs @delete="terminateTab"/>
     <div v-if="$store.getters.getCurrentTab !== undefined">
-      <Connection @action="Action"/>
-      <Settings/>
-      <component :is="$store.getters.getCurrentTab.actionType" :progress-values="parsedStatus"/>
+      <Connection :disabled="$store.getters.getCurrentTab['status']['isActive']" @action="Action"/>
+      <Settings :disabled="$store.getters.getCurrentTab['status']['isActive']"/>
+      <component :is="$store.getters.getCurrentTab.actionType" :progress-values="parsedStatus"
+                 :disabled="$store.getters.getCurrentTab['status']['isActive']"/>
     </div>
   </div>
 </template>
@@ -68,16 +69,6 @@ export default {
             if (Object.prototype.hasOwnProperty.call(message, 'error')) {
               console.log(message['error']);
               this.$toast.error(message['error']['Message'], {
-                position: "bottom-right",
-                timeout: false,
-                closeOnClick: true,
-                pauseOnFocusLoss: false,
-                pauseOnHover: false,
-                draggable: false,
-                showCloseButtonOnHover: false,
-                hideProgressBar: false,
-                closeButton: false,
-                icon: true,
                 onClick: function () {
                   self.$store.commit("changeTabById", selectedTab.id);
                 }
@@ -93,6 +84,7 @@ export default {
           this.$set(selectedTab['status'], "isLoading", false);
           this.$set(selectedTab['status'], "isActive", false);
           console.error(state['message'])
+          this.$toast.error(state['message']['Message']);
         }
       });
     },
@@ -104,6 +96,7 @@ export default {
           return true;
         } else {
           console.error(state['message']);
+          this.$toast.error(state['message']['Message']);
           return false;
         }
       })

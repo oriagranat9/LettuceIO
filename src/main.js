@@ -29,7 +29,19 @@ Vue.use(BootstrapVue);
 Vue.use(IconsPlugin);
 Vue.use(UniqueId);
 Vue.use(VueAxios, axios);
-Vue.use(Toast);
+const toastOptions = {
+    position: "bottom-right",
+    timeout: false,
+    closeOnClick: true,
+    pauseOnFocusLoss: false,
+    pauseOnHover: false,
+    draggable: false,
+    showCloseButtonOnHover: false,
+    hideProgressBar: false,
+    closeButton: false,
+    icon: true,
+};
+Vue.use(Toast, toastOptions);
 
 new Vue({
     store,

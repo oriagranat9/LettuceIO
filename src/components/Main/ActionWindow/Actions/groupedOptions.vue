@@ -8,7 +8,8 @@
                style="vertical-align: center;">
             <input v-model="value[option.key]['status']" :id="$id('group' + index)" type="checkbox"
                    @input="$emit('input', value)"
-                   class="custom-control-input custom-control-input-green">
+                   class="custom-control-input custom-control-input-green"
+                   v-bind:disabled="disabled !== undefined ? disabled : false">
             <label :for="$id('group' + index)"
                    class="custom-control-label text-light checkbox-label align-center">{{ option.text }}</label>
           </div>
@@ -17,7 +18,7 @@
           <numberInput v-model="value[option.key]['value']"
                        @input="$emit('input', value)"
                        :text="option.inputText"
-                       :disabled="!value[option.key]['status']"/>
+                       :disabled="!value[option.key]['status'] || (disabled !== undefined ? disabled : false)"/>
         </div>
       </div>
       <progress-input :id="$id('progress' + index)" :value="progressValues !== undefined ? progressValues[index] : 0"
@@ -34,7 +35,7 @@ import progressInput from "../../../inputs/progressInput";
 
 export default {
   name: "groupedOption",
-  props: ['options', 'value', 'progressValues'],
+  props: ['options', 'value', 'progressValues', 'disabled'],
   components: {
     numberInput,
     progressInput

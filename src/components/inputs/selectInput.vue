@@ -2,7 +2,8 @@
   <div class="form-group form-inline" style="white-space: nowrap; font-size: small;">
     <label :for="id" class="text-light justify-content-start"
            style="user-select: none; white-space: pre">{{ text }}</label>
-    <v-select :options="options" :id="id" class="select-wrapper" @input="$emit('input', $event)" :value="value"/>
+    <v-select v-bind:disabled="disabled !== undefined ? disabled : false" :options="options" :id="id"
+              class="select-wrapper" @input="$emit('input', $event)" :value="value"/>
   </div>
 </template>
 
@@ -11,7 +12,7 @@ import VSelect from '@alfsnd/vue-bootstrap-select'
 
 export default {
   name: "selectInput",
-  props: ['text', 'value', 'options'],
+  props: ['text', 'value', 'options', 'disabled'],
   components: {
     VSelect
   },
@@ -86,6 +87,11 @@ export default {
 
 .select-wrapper .v-dropdown-item:hover {
   background-color: var(--brand-primary) !important;
+}
+.disabled .v-select-toggle {
+  background-color: var(--bg-tertiary) !important;
+  opacity: 1 !important;
+  pointer-events: none !important;
 }
 
 </style>

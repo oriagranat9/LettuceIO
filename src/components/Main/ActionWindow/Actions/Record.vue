@@ -2,14 +2,16 @@
   <div>
     <div id="record" class="row" style="">
       <div class="col-4">
-        <grouped-options :progress-values="progressValues" v-model="actionDetails" :options="recordOptions"/>
+        <grouped-options :disabled="disabled" :progress-values="progressValues" v-model="actionDetails"
+                         :options="recordOptions"/>
       </div>
       <div class="col-3">
         <div style="text-align: start; margin: 20px">
           <text-input v-model="actionDetails.bindingRoutingKey"
                       v-if="$store.getters.getCurrentTab.selectedOption.type === 'Exchange'"
                       text="Binding routing key"
-                      :placeholder="placeHolders[$store.getters.getCurrentTab.selectedOption.exchangeType]"/>
+                      :placeholder="placeHolders[$store.getters.getCurrentTab.selectedOption.exchangeType]"
+                      :disabled="disabled"/>
         </div>
       </div>
     </div>
@@ -23,7 +25,7 @@ import ExchangePlaceholders from "../ExchangePlaceholders";
 
 export default {
   name: "Record",
-  props: ['progressValues'],
+  props: ['progressValues', 'disabled'],
   data() {
     return {
       placeHolders: ExchangePlaceholders,
