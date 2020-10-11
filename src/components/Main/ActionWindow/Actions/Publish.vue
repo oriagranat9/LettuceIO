@@ -34,7 +34,7 @@
                    style="font-size: small">Playback</label>
           </div>
 
-          <div class="row">
+          <div class="row" v-if="$store.getters.getCurrentTab.selectedOption.type === 'Exchange'">
             <div class="col-3 justify-content-start">
               <div class="form-group custom-control custom-checkbox checkbox-align grouped-row">
                 <input v-model="actionDetails.routingKeyDetails.isCustom" :id="$id('routing')"
