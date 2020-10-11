@@ -176,13 +176,12 @@ namespace LettuceIo.Dotnet.Base.Actions
         {
             var files = Directory.EnumerateFiles(_folderPath, "*.json").ToArray();
             if (files.Length <= 0) throw new Exception("No files in folder");
-            var loaded = files.Select(File.ReadAllText)
-                .Select(text => JsonConvert.DeserializeObject<Message?>(text, _serializerSettings))
-                .TakeWhile(message => message != null)
-                .WhereNotNull()
-                .ToArray();
-            if (loaded.Length != files.Length ) throw new Exception("Invalid files in folder");
-            return loaded;
+            return files.Select(file =>
+            {
+                var text = File.ReadAllText(file);
+                var message = JsonConvert.DeserializeObject<Message?>(text, _serializerSettings);
+                return message ?? throw new Exception($"Invalid file in folder (Filename: \"{file}\")");
+            });
         }
 
         private Func<Message, Message> RoutingKeyModifier() => _options.RoutingKeyDetails.RoutingKeyType switch
