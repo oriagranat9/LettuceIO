@@ -21,15 +21,5 @@ namespace LettuceIo.Dotnet.Base.Extensions
         public static IEnumerable<T[]> Split<T>(this IEnumerable<T> enumerable, int count) => enumerable
             .Select((v, i) => (v, i)).GroupBy(pair => pair.i % count)
             .Select(grouping => grouping.Select(pair => pair.v).ToArray());
-
-        public static IEnumerable<T[]> Chunk<T>(this IEnumerable<T> enumerable, int count) => enumerable
-            .Select((v, i) => (v, i)).GroupBy(pair => pair.i / count)
-            .Select(grouping => grouping.Select(pair => pair.v).ToArray());
-
-        public static IEnumerable<T> WhereNotNull<T>(this IEnumerable<T?> enumerable) where T : struct =>
-            enumerable.Where(t => t != null).Select(t => t.GetValueOrDefault());
-
-        public static IEnumerable<T> WhereNotNull<T>(this IEnumerable<T?> enumerable) where T : class =>
-            enumerable.Where(t => t != null).Select(item => item!)!;
     }
 }

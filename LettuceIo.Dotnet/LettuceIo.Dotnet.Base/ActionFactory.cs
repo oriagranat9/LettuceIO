@@ -8,7 +8,7 @@ using RabbitMQ.Client;
 
 namespace LettuceIo.Dotnet.Base
 {
-    public class ActionFactory
+    public class ActionFactory : IActionFactory
     {
         public ActionType ActionType;
         public string? FolderPath;
@@ -18,6 +18,7 @@ namespace LettuceIo.Dotnet.Base
         public Limits Limits = new Limits();
         public PublishOptions PublishOptions = new PublishOptions();
         public RecordOptions RecordOptions = new RecordOptions();
+        public TimeSpan UpdateInterval = TimeSpan.FromMilliseconds(100);
 
         public JsonSerializerSettings SerializerSettings = new JsonSerializerSettings
         {
@@ -25,12 +26,12 @@ namespace LettuceIo.Dotnet.Base
             Error = (_, error) => error.ErrorContext.Handled = true //handles failed parsing
         };
 
-        public IAction Build() => ActionType switch
+        public IAction CreateAction() => ActionType switch
         {
             ActionType.Record => new Record(ConnectionFactory!, Limits, Exchange, Queue!, FolderPath!, RecordOptions,
-                SerializerSettings),
-            ActionType.Publish => new Publish(ConnectionFactory!, Limits, Exchange!, Queue, FolderPath!, PublishOptions,
-                SerializerSettings),
+                SerializerSettings, UpdateInterval),
+            ActionType.Publish => new Publish(ConnectionFactory!, Limits, Exchange!, FolderPath!, PublishOptions,
+                SerializerSettings, UpdateInterval),
             _ => throw new NotSupportedException($"Action \"{ActionType}\" is not supported")
         };
     }

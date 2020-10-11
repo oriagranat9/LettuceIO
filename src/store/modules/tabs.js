@@ -1,5 +1,5 @@
 import {getTemplate} from "./rabbitDetails";
-import {recordDetails, publishDetails} from './actionDetails'
+import {publishDetails, recordDetails} from './actionDetails'
 
 export default {
     state: {
@@ -12,6 +12,12 @@ export default {
         },
         changeTabIndex(state, index) {
             state.selectedTabIndex = index;
+        },
+        changeTabById(state, id) {
+            let index = state.tabs.findIndex(tab => tab.id === id);
+            if (index <= 0) {
+                state.selectedTabIndex = index;
+            }
         },
         deleteTab(state, index) {
             state.tabs.splice(index, 1);

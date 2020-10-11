@@ -1,6 +1,6 @@
 import {ConnectionBuilder} from 'electron-cgi';
 import {ipcMain} from 'electron';
-import {queryOptions, queryVHosts, queryPort} from "./rabbitQuery";
+import {queryOptions, queryPort, queryVHosts} from "./rabbitQuery";
 
 let cgi = undefined;
 

@@ -17,9 +17,7 @@ export function getTemplate() {
         },
         actionDetails: {...recordDetails},
         connection: {...connectionDetails},
-        status: {
-
-        }
+        status: {}
     };
 
     return {...template}

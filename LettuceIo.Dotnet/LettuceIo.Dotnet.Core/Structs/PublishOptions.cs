@@ -8,23 +8,4 @@
         public RateDetails RateDetails;
         public RoutingKeyDetails RoutingKeyDetails;
     }
-
-    public struct RoutingKeyDetails
-    {
-        public PublishRoutingKeyType RoutingKeyType;
-        public string CustomValue;
-    }
-
-    public struct RateDetails
-    {
-        public double RateHz;
-        public int Multiplier;
-    }
-
-    public enum PublishRoutingKeyType
-    {
-        Recorded,
-        Random,
-        Custom
-    }
 }

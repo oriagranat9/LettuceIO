@@ -2,7 +2,7 @@
 using System.Collections.Concurrent;
 using ElectronCgi.DotNet;
 using LettuceIo.Dotnet.Base;
-using LettuceIo.Dotnet.Base.Extensions;
+using LettuceIo.Dotnet.Core.Enums;
 using LettuceIo.Dotnet.Core.Interfaces;
 using Newtonsoft.Json.Linq;
 
@@ -27,30 +27,29 @@ namespace LettuceIo.Dotnet.ConsoleHost
             var id = settings.Value<string>("id");
             if (ActiveActions.ContainsKey(id))
                 throw new Exception($"Key \"{id}\" already exists in the dictionary");
-            var factory = new ActionFactory().Configure(settings);
-            var action = factory.Build();
+            var action = new ActionFactory().Configure(settings).CreateAction();
             if (!ActiveActions.TryAdd(id, action))
                 throw new Exception($"Key \"{id}\" already exists in the dictionary");
-            action.Stats.Subscribe(
-                onNext: stats => Connection.Send(id, JObject.FromObject(stats)),
-                onError: exception =>
+            action.Metrics.Subscribe(
+                metrics => Connection.Send(id, JObject.FromObject(new {metrics})),
+                error =>
                 {
-                    Connection.Send(id, new JObject(new JProperty("error", JObject.FromObject(exception))));
                     TerminateAction(id);
+                    Connection.Send(id, JObject.FromObject(new {error, metrics = new {isActive = false}}));
                 },
-                onCompleted: () =>
+                () =>
                 {
-                    Connection.Send(id, new JObject(new JProperty("isActive", false)));
                     TerminateAction(id);
-                }
-            );
-            action.Start();
+                    Connection.Send(id, JObject.FromObject(new {metrics = new {isActive = false}}));
+                });
+            action.Start(); //todo: investigate safeHandle instead of try catch on action.Start()
+
             return true;
         }
 
         private static void TerminateAction(string id)
         {
-            if (ActiveActions.TryRemove(id, out var action)) action.Stop();
+            if (ActiveActions.TryRemove(id, out var action) && action.Status != Status.Stopped) action.Stop();
         }
     }
 }

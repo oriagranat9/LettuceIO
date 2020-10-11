@@ -10,7 +10,10 @@ import 'bootstrap-vue/dist/bootstrap-vue-icons.min.css'
 import '@/assets/lettuceCss.css'
 import axios from 'axios'
 import VueAxios from 'vue-axios'
-import {Titlebar, Color} from 'custom-electron-titlebar'
+import {Color, Titlebar} from 'custom-electron-titlebar'
+import Toast from "vue-toastification";
+
+import "vue-toastification/dist/index.css";
 
 new Titlebar({
     backgroundColor: Color.fromHex('#303030'),
@@ -26,6 +29,19 @@ Vue.use(BootstrapVue);
 Vue.use(IconsPlugin);
 Vue.use(UniqueId);
 Vue.use(VueAxios, axios);
+const toastOptions = {
+    position: "bottom-right",
+    timeout: false,
+    closeOnClick: true,
+    pauseOnFocusLoss: false,
+    pauseOnHover: false,
+    draggable: false,
+    showCloseButtonOnHover: false,
+    hideProgressBar: false,
+    closeButton: false,
+    icon: true,
+};
+Vue.use(Toast, toastOptions);
 
 new Vue({
     store,

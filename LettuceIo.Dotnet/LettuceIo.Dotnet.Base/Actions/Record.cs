@@ -18,7 +18,7 @@ namespace LettuceIo.Dotnet.Base.Actions
     public class Record : IAction
     {
         public Status Status { get; private set; } = Status.Pending;
-        public IObservable<ActionMetrics> Stats => _statsSubject;
+        public IObservable<Metrics> Metrics => _statsSubject;
 
         #region fields
 
@@ -29,19 +29,20 @@ namespace LettuceIo.Dotnet.Base.Actions
         private readonly RecordOptions _options;
         private readonly string _folderPath;
         private readonly JsonSerializerSettings _serializerSettings;
-        private IModel? _channel;
-        private ActionMetrics _currentMetrics = new ActionMetrics {Count = 0, Duration = TimeSpan.Zero, SizeKB = 0d};
-        private readonly ISubject<ActionMetrics> _statsSubject = new Subject<ActionMetrics>();
+        private readonly TimeSpan _updateInterval;
+        private Metrics _currentMetrics = new Metrics {Count = 0, Duration = TimeSpan.Zero, SizeKB = 0d};
+        private readonly ISubject<Metrics> _statsSubject = new Subject<Metrics>();
         private readonly Stopwatch _durationStopWatch = new Stopwatch();
-        private string? _consumerTag;
-        private IDisposable? _subscription;
-        private IDisposable? _timerSubscription;
-        private readonly TimeSpan _updateInterval = TimeSpan.FromMilliseconds(100);
+        private IDisposable? _consumerSubscription;
+        private IDisposable? _updateTick;
+        private IConnection? _connection;
+        private bool _disposed;
 
         #endregion
 
         public Record(IConnectionFactory connectionFactory, Limits limits, string? exchange, string queue,
-            string folderPath, RecordOptions options, JsonSerializerSettings serializerSettings)
+            string folderPath, RecordOptions options, JsonSerializerSettings serializerSettings,
+            TimeSpan updateInterval)
         {
             _connectionFactory = connectionFactory;
             _limits = limits;
@@ -50,16 +51,17 @@ namespace LettuceIo.Dotnet.Base.Actions
             _options = options;
             _folderPath = folderPath;
             _serializerSettings = serializerSettings;
+            _updateInterval = updateInterval;
         }
 
         public void Start()
         {
-            if (Status != Status.Pending) throw new InvalidOperationException("The action was started already");
+            if (Status != Status.Pending) throw new InvalidOperationException("The action is not pending activation.");
             Status = Status.Running;
-            _channel = _connectionFactory.CreateConnection().CreateModel();
-            _channel.ModelShutdown += (_, args) => OnError(new Exception(args.ReplyText));
-            var consumer = new EventingBasicConsumer(_channel);
-            _subscription = Observable.FromEventPattern<BasicDeliverEventArgs>(
+            _connection = _connectionFactory.CreateConnection();
+            var channel = _connection.CreateModel();
+            var consumer = new EventingBasicConsumer(channel);
+            _consumerSubscription = Observable.FromEventPattern<BasicDeliverEventArgs>(
                     handler => consumer.Received += handler,
                     handler => consumer.Received -= handler)
                 .TimeInterval()
@@ -67,7 +69,7 @@ namespace LettuceIo.Dotnet.Base.Actions
                 .Limit(_limits)
                 .Subscribe(OnMessage, Stop);
             _durationStopWatch.Restart();
-            _timerSubscription = Observable.Interval(_updateInterval).Subscribe(_ =>
+            _updateTick = Observable.Interval(_updateInterval).Subscribe(_ =>
             {
                 _currentMetrics.Duration = _durationStopWatch.Elapsed;
                 _statsSubject.OnNext(_currentMetrics);
@@ -75,32 +77,37 @@ namespace LettuceIo.Dotnet.Base.Actions
 
             if (_exchange != null)
             {
-                _channel.QueueDeclare(_queue);
-                _channel.QueueBind(_queue, _exchange, _options.BindingRoutingKey);
+                channel.QueueDeclare(_queue);
+                channel.QueueBind(_queue, _exchange, _options.BindingRoutingKey);
             }
 
-            _consumerTag = _channel.BasicConsume(consumer, _queue, true, exclusive: true);
+            channel.BasicConsume(consumer, _queue, true, exclusive: true);
+        }
+
+        private void Dispose()
+        {
+            if (_disposed) return;
+            _disposed = true;
+            _connection?.Close();
+            _consumerSubscription?.Dispose();
+            _updateTick?.Dispose();
         }
 
         public void Stop()
         {
             if (Status == Status.Stopped) return;
-            if (Status != Status.Running) throw new InvalidOperationException("The action is not running");
             Status = Status.Stopped;
-            _subscription?.Dispose();
-            _timerSubscription?.Dispose();
             _statsSubject.OnCompleted();
-            _durationStopWatch.Stop();
-            _channel?.BasicCancel(_consumerTag);
-            if (_exchange != null)
-                _channel?.QueueDelete(_queue); //TODO: check if it's necessary with autoDelete on the queue
+            Dispose();
         }
+
 
         private void OnError(Exception exception)
         {
             if (Status == Status.Stopped) return;
+            Status = Status.Stopped;
             _statsSubject.OnError(exception);
-            Stop();
+            Dispose();
         }
 
         private void OnMessage(Message message)
