@@ -174,13 +174,14 @@ namespace LettuceIo.Dotnet.Base.Actions
 
         private IEnumerable<Message> LoadMessages()
         {
-            var arr = Directory.EnumerateFiles(_folderPath, "*.json")
-                .Select(File.ReadAllText)
+            var files = Directory.EnumerateFiles(_folderPath, "*.json").ToArray();
+            if (files.Length <= 0) throw new Exception("No files in folder");
+            var loaded = files.Select(File.ReadAllText)
                 .Select(text => JsonConvert.DeserializeObject<Message?>(text, _serializerSettings))
                 .WhereNotNull()
                 .ToArray();
-            if (arr.Length == 0) throw new ArgumentException("No messages in directory");
-            return arr;
+            if (loaded.Length <= 0) throw new Exception("No valid files in folder");
+            return loaded;
         }
 
         private Func<Message, Message> RoutingKeyModifier() => _options.RoutingKeyDetails.RoutingKeyType switch
