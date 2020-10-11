@@ -178,9 +178,10 @@ namespace LettuceIo.Dotnet.Base.Actions
             if (files.Length <= 0) throw new Exception("No files in folder");
             var loaded = files.Select(File.ReadAllText)
                 .Select(text => JsonConvert.DeserializeObject<Message?>(text, _serializerSettings))
+                .TakeWhile(message => message != null)
                 .WhereNotNull()
                 .ToArray();
-            if (loaded.Length <= 0) throw new Exception("No valid files in folder");
+            if (loaded.Length != files.Length ) throw new Exception("Invalid files in folder");
             return loaded;
         }
 
