@@ -32,7 +32,7 @@ Vue.use(UniqueId);
 Vue.use(VueAxios, axios);
 const toastOptions = {
     position: "bottom-right",
-    timeout: false,
+    timeout: 5000,
     closeOnClick: true,
     pauseOnFocusLoss: false,
     pauseOnHover: false,
