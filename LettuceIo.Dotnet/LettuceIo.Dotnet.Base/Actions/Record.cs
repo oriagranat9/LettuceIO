@@ -84,7 +84,11 @@ namespace LettuceIo.Dotnet.Base.Actions
             }
 
             var tag = channel.BasicConsume(consumer, _queue, true);
-            _consumption = Disposable.Create(() => channel.BasicCancel(tag));
+            _consumption = Disposable.Create(() =>
+            {
+                channel.BasicCancel(tag);
+                channel.Close();
+            });
         }
 
         private void Dispose()
