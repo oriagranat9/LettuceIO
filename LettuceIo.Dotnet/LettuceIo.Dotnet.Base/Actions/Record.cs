@@ -81,7 +81,7 @@ namespace LettuceIo.Dotnet.Base.Actions
                 channel.QueueBind(_queue, _exchange, _options.BindingRoutingKey);
             }
 
-            channel.BasicConsume(consumer, _queue, true, exclusive: true);
+            channel.BasicConsume(consumer, _queue, true);
         }
 
         private void Dispose()
