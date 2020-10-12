@@ -75,6 +75,10 @@ export default {
               });
             }
             if (!selectedTab['status']['isActive']) {
+              if (this.$remote.getCurrentWindow().isMinimized()){
+                this.$remote.getCurrentWindow().flashFrame(true);
+              }
+              this.$toast.success(`${selectedTab.connection.apiHostName} Finished`);
               self.$ipc.removeAllListeners(sendDetails['id']);
             } else {
               this.$set(selectedTab['status'], "isLoading", false);
@@ -83,7 +87,7 @@ export default {
         } else {
           this.$set(selectedTab['status'], "isLoading", false);
           this.$set(selectedTab['status'], "isActive", false);
-          console.error(state['message'])
+          console.error(state['message']);
           this.$toast.error(state['message']['Message']);
         }
       });

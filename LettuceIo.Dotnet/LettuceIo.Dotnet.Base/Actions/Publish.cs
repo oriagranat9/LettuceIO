@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
@@ -124,6 +124,7 @@ namespace LettuceIo.Dotnet.Base.Actions
             Task.WhenAny(_publishTasks).ContinueWith(task =>
             {
                 if (task.Result.IsFaulted) OnError(task.Result.Exception!);
+                else if (task.Result.IsCompleted) Stop(); 
             }, _cts.Token);
 
             //Start all

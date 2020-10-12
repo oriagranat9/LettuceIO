@@ -1,7 +1,7 @@
 import Vue from 'vue'
 import App from './App.vue'
 import store from './store'
-import {ipcRenderer} from 'electron'
+import {ipcRenderer, remote} from 'electron'
 import UniqueId from 'vue-unique-id';
 import {BootstrapVue, IconsPlugin} from 'bootstrap-vue'
 import 'bootstrap/dist/css/bootstrap.css'
@@ -22,8 +22,9 @@ new Titlebar({
     menuPosition: "left"
 }).updateTitle("Lettuce.IO");
 
-
 Vue.prototype.$ipc = ipcRenderer;
+Vue.prototype.$remote = remote;
+
 Vue.config.productionTip = false;
 Vue.use(BootstrapVue);
 Vue.use(IconsPlugin);
