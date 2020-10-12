@@ -15,8 +15,8 @@ namespace LettuceIo.Dotnet.ConsoleHost
         {
             f.FolderPath = details.Value<string>("folderPath");
             f.ActionType = Enum.Parse<ActionType>(details.Value<string>("actionType"));
-            f.ConfigureActions(details["actionDetails"]!, f.ActionType);
             f.ConfigureEntities(details["selectedOption"]!, f.ActionType, details.Value<string>("id"));
+            f.ConfigureActions(details["actionDetails"]!, f.ActionType);
             f.ConnectionFactory = ToConnectionFactory(details["connection"]!);
             f.Limits = ToLimits(details["actionDetails"]!);
             return f;
@@ -39,6 +39,7 @@ namespace LettuceIo.Dotnet.ConsoleHost
 
         public static void ConfigureActions(this ActionFactory f, JToken details, ActionType actionType)
         {
+            // ReSharper disable once SwitchStatementHandlesSomeKnownEnumValuesWithDefault
             switch (actionType)
             {
                 case ActionType.Publish:
@@ -50,7 +51,11 @@ namespace LettuceIo.Dotnet.ConsoleHost
                         RateDetails = ToRateDetails(details["rateDetails"]!),
                         RoutingKeyDetails = ToRoutingKeyDetails(details["routingKeyDetails"]!)
                     };
-                    if (f.Exchange == "") f.PublishOptions.RoutingKeyDetails.CustomValue = f.Queue;
+                    if (f.Exchange == "") //Default AMQP exchange
+                    {
+                        f.PublishOptions.RoutingKeyDetails.RoutingKeyType = PublishRoutingKeyType.Custom;
+                        f.PublishOptions.RoutingKeyDetails.CustomValue = f.Queue;
+                    }
                     break;
                 case ActionType.Record:
                     f.RecordOptions = new RecordOptions
