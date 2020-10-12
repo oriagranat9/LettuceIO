@@ -78,7 +78,7 @@ export default {
               if (this.$remote.getCurrentWindow().isMinimized()){
                 this.$remote.getCurrentWindow().flashFrame(true);
               }
-              this.$toast.success(`${selectedTab.connection.apiHostName} Finished`);
+              this.$toast.success(`${selectedTab.actionType} on ${selectedTab.connection.apiHostName} finished successfully`);
               self.$ipc.removeAllListeners(sendDetails['id']);
             } else {
               this.$set(selectedTab['status'], "isLoading", false);
