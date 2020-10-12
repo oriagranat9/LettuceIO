@@ -2,6 +2,7 @@
 using System.Diagnostics;
 using System.IO;
 using System.Reactive;
+using System.Reactive.Disposables;
 using System.Reactive.Linq;
 using System.Reactive.Subjects;
 using System.Threading.Tasks;
@@ -33,6 +34,7 @@ namespace LettuceIo.Dotnet.Base.Actions
         private Metrics _currentMetrics = new Metrics {Count = 0, Duration = TimeSpan.Zero, SizeKB = 0d};
         private readonly ISubject<Metrics> _statsSubject = new Subject<Metrics>();
         private readonly Stopwatch _durationStopWatch = new Stopwatch();
+        private IDisposable? _consumption;
         private IDisposable? _consumerSubscription;
         private IDisposable? _updateTick;
         private IConnection? _connection;
@@ -81,15 +83,17 @@ namespace LettuceIo.Dotnet.Base.Actions
                 channel.QueueBind(_queue, _exchange, _options.BindingRoutingKey);
             }
 
-            channel.BasicConsume(consumer, _queue, true);
+            var tag = channel.BasicConsume(consumer, _queue, true);
+            _consumption = Disposable.Create(() => channel.BasicCancel(tag));
         }
 
         private void Dispose()
         {
             if (_disposed) return;
             _disposed = true;
-            _connection?.Close();
+            _consumption?.Dispose();
             _consumerSubscription?.Dispose();
+            _connection?.Close();
             _updateTick?.Dispose();
         }
 
