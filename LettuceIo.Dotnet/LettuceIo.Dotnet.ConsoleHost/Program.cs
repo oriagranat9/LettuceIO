@@ -42,7 +42,15 @@ namespace LettuceIo.Dotnet.ConsoleHost
                     TerminateAction(id);
                     Connection.Send(id, JObject.FromObject(new {metrics = new {isActive = false}}));
                 });
-            action.Start(); //todo: investigate safeHandle instead of try catch on action.Start()
+            try
+            {
+                action.Start();
+            }
+            catch (Exception e)
+            {
+                TerminateAction(id);
+                throw e;
+            }
 
             return true;
         }
@@ -50,6 +58,7 @@ namespace LettuceIo.Dotnet.ConsoleHost
         private static void TerminateAction(string id)
         {
             if (ActiveActions.TryRemove(id, out var action) && action.Status != Status.Stopped) action.Stop();
+            
         }
     }
 }

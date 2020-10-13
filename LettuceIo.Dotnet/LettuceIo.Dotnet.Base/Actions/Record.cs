@@ -91,7 +91,7 @@ namespace LettuceIo.Dotnet.Base.Actions
             });
         }
 
-        private void Dispose()
+        public void Dispose()
         {
             if (_disposed) return;
             _disposed = true;

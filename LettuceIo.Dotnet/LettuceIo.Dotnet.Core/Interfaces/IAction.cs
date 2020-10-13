@@ -4,7 +4,7 @@ using LettuceIo.Dotnet.Core.Structs;
 
 namespace LettuceIo.Dotnet.Core.Interfaces
 {
-    public interface IAction
+    public interface IAction : IDisposable
     {
         public Status Status { get; }
         public IObservable<Metrics> Metrics { get; }

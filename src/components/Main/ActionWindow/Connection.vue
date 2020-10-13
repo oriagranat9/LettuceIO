@@ -94,9 +94,9 @@ export default {
         username: this.connectionDetails.username,
         password: this.connectionDetails.password
       }).then(value => {
-        if (value !== undefined) {
-          this.connectionDetails.amqpHostName = value["hostname"];
-          this.connectionDetails.amqpPort = value["port"];
+        if (value !== undefined && this.connectionDetails.amqpHostName === "") {
+            this.connectionDetails.amqpHostName = value["hostname"];
+            this.connectionDetails.amqpPort = value["port"];
         }
       });
     },

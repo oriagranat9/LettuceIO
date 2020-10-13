@@ -56,6 +56,7 @@ namespace LettuceIo.Dotnet.ConsoleHost
                         f.PublishOptions.RoutingKeyDetails.RoutingKeyType = PublishRoutingKeyType.Custom;
                         f.PublishOptions.RoutingKeyDetails.CustomValue = f.Queue;
                     }
+
                     break;
                 case ActionType.Record:
                     f.RecordOptions = new RecordOptions
@@ -69,9 +70,10 @@ namespace LettuceIo.Dotnet.ConsoleHost
         public static IConnectionFactory ToConnectionFactory(JToken details) => new ConnectionFactory
         {
             HostName = details.Value<string>("amqpHostName"),
+            Port = details.Value<int>("amqpPort"),
             VirtualHost = details.Value<string>("vhost"),
             UserName = details.Value<string>("username"),
-            Password = details.Value<string>("password")
+            Password = details.Value<string>("password"),
         };
 
         public static Limits ToLimits(JToken details) => new Limits

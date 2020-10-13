@@ -153,7 +153,7 @@ namespace LettuceIo.Dotnet.Base.Actions
             Dispose();
         }
 
-        private void Dispose()
+        public void Dispose()
         {
             if (_disposed) return;
             _disposed = true;
