@@ -31,15 +31,18 @@ export default {
         setTabValue(state, {key, value}) {
             state.tabs[state.selectedTabIndex][key] = value
         },
-        changeActionDetails(state) {
+        changeActionDetails(state, value) {
             const currentTab = state.tabs[state.selectedTabIndex];
-            switch (currentTab.actionType) {
-                case "Record":
-                    currentTab.actionDetails = {...recordDetails};
-                    break;
-                case "Publish":
-                    currentTab.actionDetails = {...publishDetails};
-                    break;
+            if (value !== currentTab.actionType){
+                currentTab.actionType = value;
+                switch (currentTab.actionType) {
+                    case "Record":
+                        currentTab.actionDetails = {...recordDetails};
+                break;
+                    case "Publish":
+                        currentTab.actionDetails = {...publishDetails};
+                        break;
+                }
             }
         },
     },

@@ -31,17 +31,17 @@ export default {
       placeHolders: ExchangePlaceholders,
       recordOptions: [
         {
-          text: "message count",
+          text: "Message count",
           inputText: "messages",
           key: "countLimit"
         },
         {
-          text: "total size",
+          text: "Total size",
           inputText: "kb",
           key: "sizeLimit"
         },
         {
-          text: "duration",
+          text: "Duration",
           inputText: "sec",
           key: "timeLimit"
         }

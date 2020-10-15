@@ -63,13 +63,20 @@ namespace LettuceIo.Dotnet.Base.Actions
             _connection = _connectionFactory.CreateConnection();
             var channel = _connection.CreateModel();
             var consumer = new EventingBasicConsumer(channel);
+
             _consumerSubscription = Observable.FromEventPattern<BasicDeliverEventArgs>(
                     handler => consumer.Received += handler,
                     handler => consumer.Received -= handler)
                 .TimeInterval()
-                .Select(ToMessage)
+                .Select(timeInterval=> (ToMessage(timeInterval), timeInterval.Value.EventArgs.DeliveryTag))
                 .Limit(_limits)
-                .Subscribe(OnMessage, Stop);
+                .Subscribe(tuple =>
+                    {
+                        var (message, deliveryTag) = tuple;
+                        channel.BasicAck(deliveryTag, false);
+                        OnMessage(message);
+                    }
+                    , Stop);
             _durationStopWatch.Restart();
             _updateTick = Observable.Interval(_updateInterval).Subscribe(_ =>
             {
@@ -83,7 +90,8 @@ namespace LettuceIo.Dotnet.Base.Actions
                 channel.QueueBind(_queue, _exchange, _options.BindingRoutingKey);
             }
 
-            var tag = channel.BasicConsume(consumer, _queue, true);
+            var tag = channel.BasicConsume(consumer, _queue, false);
+
             _consumption = Disposable.Create(() =>
             {
                 channel.BasicCancel(tag);
