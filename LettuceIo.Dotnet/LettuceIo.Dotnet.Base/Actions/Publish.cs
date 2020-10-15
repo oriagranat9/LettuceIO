@@ -66,6 +66,7 @@ namespace LettuceIo.Dotnet.Base.Actions
 
             _connection = _connectionFactory.CreateConnection();
 
+
             if (_options.Playback)
             {
                 if (_options.Loop) messages = messages.Loop();
@@ -88,7 +89,7 @@ namespace LettuceIo.Dotnet.Base.Actions
                         UpdateMetrics(message);
                     }
 
-                    channel.Close();
+                    channel.Abort();
                 }, _cts.Token));
             }
             else
@@ -107,6 +108,7 @@ namespace LettuceIo.Dotnet.Base.Actions
 
                         //publish
                         channel.BasicPublish(_exchange, message);
+                        // channel.WaitForConfirms();
 
                         //update metrics
                         UpdateMetrics(message);
@@ -116,7 +118,7 @@ namespace LettuceIo.Dotnet.Base.Actions
                             intervalMilliSeconds); //TODO: maybe remove sw handling so it is more precise here...
                     }
 
-                    channel.Close();
+                    channel.Abort();
                 }, _cts.Token)).ToArray());
             }
 
@@ -124,7 +126,7 @@ namespace LettuceIo.Dotnet.Base.Actions
             Task.WhenAny(_publishTasks).ContinueWith(task =>
             {
                 if (task.Result.IsFaulted) OnError(task.Result.Exception!);
-                else if (task.Result.IsCompleted) Stop(); 
+                else if (task.Result.IsCompleted) Stop();
             }, _cts.Token);
 
             //Start all
