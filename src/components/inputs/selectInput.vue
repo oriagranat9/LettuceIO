@@ -2,7 +2,7 @@
   <div class="form-group form-inline" style="white-space: nowrap; font-size: small;">
     <label :for="id" class="text-light justify-content-start"
            style="user-select: none; white-space: pre">{{ text }}</label>
-    <v-select v-bind:disabled="disabled !== undefined ? disabled : false" :options="options" :id="id"
+    <v-select ref="select" v-bind:disabled="disabled !== undefined ? disabled : false" :options="options" :id="id"
               class="select-wrapper" @input="$emit('input', $event)" :value="value"/>
   </div>
 </template>
@@ -19,6 +19,15 @@ export default {
   data() {
     return {
       id: null
+    }
+  },
+  watch:{
+    value:{
+      handler(){
+        if (this.value === ""){
+          this.$refs.select.$data.selectedValue = "";
+        }
+      }
     }
   },
   mounted() {
