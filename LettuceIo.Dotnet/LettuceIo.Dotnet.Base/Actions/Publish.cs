@@ -87,8 +87,7 @@ namespace LettuceIo.Dotnet.Base.Actions
             });
             publishTasks.ForEach(task => task.Start());
         }
-
-
+        
         public void Stop()
         {
             if (Status == Status.Stopped) return;
@@ -113,32 +112,7 @@ namespace LettuceIo.Dotnet.Base.Actions
             _updateTick?.Dispose();
             _connection?.Close();
         }
-
-        private bool LimitsReached() => _limits.Amount <= _currentMetrics.Count ||
-                                        _limits.Duration <= _currentMetrics.Duration ||
-                                        _limits.SizeKB <= _currentMetrics.SizeKB;
-
-        private void UpdateMetrics(Message message)
-        {
-            _currentMetrics.Count++;
-            _currentMetrics.Duration = _durationStopWatch.Elapsed;
-            _currentMetrics.SizeKB += message.SizeKB();
-        }
-
-        private IEnumerable<Message> LoadMessages()
-        {
-            var files = Directory.EnumerateFiles(_folderPath, "*.json").ToArray();
-            if (files.Length <= 0) throw new Exception("No files in folder");
-            return files.Select(file =>
-            {
-                var text = File.ReadAllText(file);
-                var message = JsonConvert.DeserializeObject<Message?>(text, _serializerSettings);
-                return message ?? throw new Exception($"Invalid file in folder (Filename: \"{file}\")");
-            });
-        }
-
         
-
         private void Playback(IEnumerable<Message> messages)
         {
             var channel = _connection!.CreateModel();
@@ -184,6 +158,29 @@ namespace LettuceIo.Dotnet.Base.Actions
             }
 
             channel.Abort();
+        }
+
+        private bool LimitsReached() => _limits.Amount <= _currentMetrics.Count ||
+                                        _limits.Duration <= _currentMetrics.Duration ||
+                                        _limits.SizeKB <= _currentMetrics.SizeKB;
+
+        private void UpdateMetrics(Message message)
+        {
+            _currentMetrics.Count++;
+            _currentMetrics.Duration = _durationStopWatch.Elapsed;
+            _currentMetrics.SizeKB += message.SizeKB();
+        }
+
+        private IEnumerable<Message> LoadMessages()
+        {
+            var files = Directory.EnumerateFiles(_folderPath, "*.json").ToArray();
+            if (files.Length <= 0) throw new Exception("No files in folder");
+            return files.Select(file =>
+            {
+                var text = File.ReadAllText(file);
+                var message = JsonConvert.DeserializeObject<Message?>(text, _serializerSettings);
+                return message ?? throw new Exception($"Invalid file in folder (Filename: \"{file}\")");
+            });
         }
         
         private IEnumerable<Message> ModifyMessages(IEnumerable<Message> messages)
