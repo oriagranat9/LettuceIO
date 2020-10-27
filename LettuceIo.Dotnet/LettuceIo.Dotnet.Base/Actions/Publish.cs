@@ -62,14 +62,12 @@ namespace LettuceIo.Dotnet.Base.Actions
 
             IEnumerable<Message> messages = LoadMessages();
             if (_options.Shuffle) messages = messages.Shuffle(_random);
-            messages = messages.Select(RoutingKeyModifier()); //Handle RoutingKeyOptions
-
             _connection = _connectionFactory.CreateConnection();
-
 
             if (_options.Playback)
             {
                 if (_options.Loop) messages = messages.Loop();
+                messages = messages.Select(RoutingKeyModifier()); //Handle RoutingKeyOptions
                 _publishTasks.Add(new Task(() =>
                 {
                     var channel = _connection.CreateModel();
@@ -97,6 +95,7 @@ namespace LettuceIo.Dotnet.Base.Actions
                 var intervalMilliSeconds = 1000d / _options.RateDetails.RateHz;
                 IEnumerable<IEnumerable<Message>> buckets = messages.Split(_options.RateDetails.Multiplier).ToList();
                 if (_options.Loop) buckets = buckets.Select(EnumerableExtensions.Loop);
+                buckets = buckets.Select(bucket => bucket.Select(RoutingKeyModifier())); //Handle RoutingKeyOptions
                 _publishTasks.AddRange(buckets.Select(bucket => new Task(() =>
                 {
                     var channel = _connection.CreateModel();
