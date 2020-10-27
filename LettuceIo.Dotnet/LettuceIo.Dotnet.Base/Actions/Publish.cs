@@ -35,7 +35,6 @@ namespace LettuceIo.Dotnet.Base.Actions
         private readonly Random _random = new Random();
         private readonly Stopwatch _durationStopWatch = new Stopwatch();
         private IDisposable? _updateTick;
-        private readonly List<Task> _publishTasks = new List<Task>();
         private IConnection? _connection;
         private readonly CancellationTokenSource _cts = new CancellationTokenSource();
         private bool _disposed;
@@ -64,78 +63,83 @@ namespace LettuceIo.Dotnet.Base.Actions
             if (_options.Shuffle) messages = messages.Shuffle(_random);
             _connection = _connectionFactory.CreateConnection();
 
-            if (_options.Playback)
-            {
-                if (_options.Loop) messages = messages.Loop();
-                messages = messages.Select(RoutingKeyModifier()); //Handle RoutingKeyOptions
-                _publishTasks.Add(new Task(() =>
-                {
-                    var channel = _connection.CreateModel();
-                    var timer = new Timer();
-                    foreach (var message in messages)
-                    {
-                        //check limits
-                        if (_cts.IsCancellationRequested || LimitsReached()) break;
-
-                        //sleep before publish for current message timeDelta
-                        timer.Sleep(message.TimeDelta);
-
-                        //publish
-                        channel.BasicPublish(_exchange, message);
-
-                        //update metrics
-                        UpdateMetrics(message);
-                    }
-
-                    channel.Abort();
-                }, _cts.Token));
-            }
-            else
-            {
-                var intervalMilliSeconds = 1000d / _options.RateDetails.RateHz;
-                IEnumerable<IEnumerable<Message>> buckets = messages.Split(_options.RateDetails.Multiplier).ToList();
-                if (_options.Loop) buckets = buckets.Select(EnumerableExtensions.Loop);
-                buckets = buckets.Select(bucket => bucket.Select(RoutingKeyModifier())); //Handle RoutingKeyOptions
-                _publishTasks.AddRange(buckets.Select(bucket => new Task(() =>
-                {
-                    var channel = _connection.CreateModel();
-                    var timer = new Timer();
-                    foreach (var message in bucket)
-                    {
-                        //check limits
-                        if (_cts.IsCancellationRequested || LimitsReached()) break;
-
-                        //publish
-                        channel.BasicPublish(_exchange, message);
-                        // channel.WaitForConfirms();
-
-                        //update metrics
-                        UpdateMetrics(message);
-
-                        //sleep
-                        timer.Sleep(
-                            intervalMilliSeconds); //TODO: maybe remove sw handling so it is more precise here...
-                    }
-
-                    channel.Abort();
-                }, _cts.Token)).ToArray());
-            }
+            //Create publish tasks
+            var publishTasks = new List<Task>(_options.Playback
+                ? Enumerable.Range(0, 1).Select(_ => new Task(() =>
+                    Playback(ModifyMessages(messages)), _cts.Token)) //Create 1 playback task with the modified messages
+                : Enumerable.Range(0, _options.RateDetails.Multiplier).Select(_ => new Task(() =>
+                    Rate(ModifyMessages(messages)), _cts.Token))); //Create multiple rate tasks with the modified messages
 
             //Notify if error and stop when any of the tasks finish
-            Task.WhenAny(_publishTasks).ContinueWith(task =>
+            Task.WhenAny(publishTasks).ContinueWith(task =>
             {
                 if (task.Result.IsFaulted) OnError(task.Result.Exception!);
                 else if (task.Result.IsCompleted) Stop();
             }, _cts.Token);
 
-            //Start all
+            //Start all tasks
             _durationStopWatch.Start();
             _updateTick = Observable.Interval(_updateInterval).Subscribe(_ =>
             {
                 _currentMetrics.Duration = _durationStopWatch.Elapsed;
                 _statsSubject.OnNext(_currentMetrics);
             });
-            _publishTasks.ForEach(task => task.Start());
+            publishTasks.ForEach(task => task.Start());
+        }
+
+        private IEnumerable<Message> ModifyMessages(IEnumerable<Message> messages)
+        {
+            if (_options.Loop) messages = messages.Loop();
+            messages = messages.Select(RoutingKeyModifier()); //Handle RoutingKeyOptions after loop
+
+            return messages;
+        }
+
+        private void Playback(IEnumerable<Message> messages)
+        {
+            var channel = _connection!.CreateModel();
+            var timer = new Timer();
+            foreach (var message in messages)
+            {
+                //check limits
+                if (_cts.IsCancellationRequested || LimitsReached()) break;
+
+                //sleep before publish for current message timeDelta
+                timer.Sleep(message.TimeDelta);
+
+                //publish
+                channel.BasicPublish(_exchange, message);
+
+                //update metrics
+                UpdateMetrics(message);
+            }
+
+            channel.Abort();
+        }
+
+        private void Rate(IEnumerable<Message> messages)
+        {
+            var intervalMilliSeconds = 1000d / _options.RateDetails.RateHz;
+            var channel = _connection!.CreateModel();
+            var timer = new Timer();
+            foreach (var message in messages)
+            {
+                //check limits
+                if (_cts.IsCancellationRequested || LimitsReached()) break;
+
+                //publish
+                channel.BasicPublish(_exchange, message);
+                // channel.WaitForConfirms();
+
+                //update metrics
+                UpdateMetrics(message);
+
+                //sleep
+                timer.Sleep(intervalMilliSeconds);
+                //TODO: maybe remove sw handling so it is more precise here...
+            }
+
+            channel.Abort();
         }
 
         public void Stop()
