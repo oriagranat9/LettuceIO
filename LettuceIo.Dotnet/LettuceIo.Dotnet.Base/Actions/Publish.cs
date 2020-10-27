@@ -68,7 +68,8 @@ namespace LettuceIo.Dotnet.Base.Actions
                 ? Enumerable.Range(0, 1).Select(_ => new Task(() =>
                     Playback(ModifyMessages(messages)), _cts.Token)) //Create 1 playback task with the modified messages
                 : Enumerable.Range(0, _options.RateDetails.Multiplier).Select(_ => new Task(() =>
-                    Rate(ModifyMessages(messages)), _cts.Token))); //Create multiple rate tasks with the modified messages
+                        Rate(ModifyMessages(messages)),
+                    _cts.Token))); //Create multiple rate tasks with the modified messages
 
             //Notify if error and stop when any of the tasks finish
             Task.WhenAny(publishTasks).ContinueWith(task =>
@@ -87,60 +88,6 @@ namespace LettuceIo.Dotnet.Base.Actions
             publishTasks.ForEach(task => task.Start());
         }
 
-        private IEnumerable<Message> ModifyMessages(IEnumerable<Message> messages)
-        {
-            if (_options.Loop) messages = messages.Loop();
-            messages = messages.Select(RoutingKeyModifier()); //Handle RoutingKeyOptions after loop
-
-            return messages;
-        }
-
-        private void Playback(IEnumerable<Message> messages)
-        {
-            var channel = _connection!.CreateModel();
-            var timer = new Timer();
-            foreach (var message in messages)
-            {
-                //check limits
-                if (_cts.IsCancellationRequested || LimitsReached()) break;
-
-                //sleep before publish for current message timeDelta
-                timer.Sleep(message.TimeDelta);
-
-                //publish
-                channel.BasicPublish(_exchange, message);
-
-                //update metrics
-                UpdateMetrics(message);
-            }
-
-            channel.Abort();
-        }
-
-        private void Rate(IEnumerable<Message> messages)
-        {
-            var intervalMilliSeconds = 1000d / _options.RateDetails.RateHz;
-            var channel = _connection!.CreateModel();
-            var timer = new Timer();
-            foreach (var message in messages)
-            {
-                //check limits
-                if (_cts.IsCancellationRequested || LimitsReached()) break;
-
-                //publish
-                channel.BasicPublish(_exchange, message);
-                // channel.WaitForConfirms();
-
-                //update metrics
-                UpdateMetrics(message);
-
-                //sleep
-                timer.Sleep(intervalMilliSeconds);
-                //TODO: maybe remove sw handling so it is more precise here...
-            }
-
-            channel.Abort();
-        }
 
         public void Stop()
         {
@@ -188,6 +135,63 @@ namespace LettuceIo.Dotnet.Base.Actions
                 var message = JsonConvert.DeserializeObject<Message?>(text, _serializerSettings);
                 return message ?? throw new Exception($"Invalid file in folder (Filename: \"{file}\")");
             });
+        }
+
+        
+
+        private void Playback(IEnumerable<Message> messages)
+        {
+            var channel = _connection!.CreateModel();
+            var timer = new Timer();
+            foreach (var message in messages)
+            {
+                //check limits
+                if (_cts.IsCancellationRequested || LimitsReached()) break;
+
+                //sleep before publish for current message timeDelta
+                timer.Sleep(message.TimeDelta);
+
+                //publish
+                channel.BasicPublish(_exchange, message);
+
+                //update metrics
+                UpdateMetrics(message);
+            }
+
+            channel.Abort();
+        }
+
+        private void Rate(IEnumerable<Message> messages)
+        {
+            var intervalMilliSeconds = 1000d / _options.RateDetails.RateHz;
+            var channel = _connection!.CreateModel();
+            var timer = new Timer();
+            foreach (var message in messages)
+            {
+                //check limits
+                if (_cts.IsCancellationRequested || LimitsReached()) break;
+
+                //publish
+                channel.BasicPublish(_exchange, message);
+                // channel.WaitForConfirms();
+
+                //update metrics
+                UpdateMetrics(message);
+
+                //sleep
+                timer.Sleep(intervalMilliSeconds);
+                //TODO: maybe remove sw handling so it is more precise here...
+            }
+
+            channel.Abort();
+        }
+        
+        private IEnumerable<Message> ModifyMessages(IEnumerable<Message> messages)
+        {
+            if (_options.Loop) messages = messages.Loop();
+            messages = messages.Select(RoutingKeyModifier()); //Handle RoutingKeyOptions after loop
+
+            return messages;
         }
 
         private Func<Message, Message> RoutingKeyModifier() => _options.RoutingKeyDetails.RoutingKeyType switch
