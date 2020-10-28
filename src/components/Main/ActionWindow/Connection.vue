@@ -107,8 +107,7 @@
                     this.$toast.error(`could not connect to rabbit at ${this.connectionDetails.apiHostName}:${this.connectionDetails.apiPort}`, {
                       timeout: 2000,
                     });
-                });
-                this.tmpHostName = this.connectionDetails.apiHostName;
+                }).finally(this.tmpHostName = this.connectionDetails.apiHostName);
             },
             queryAllVhosts() {
                 this.$ipc.invoke("queryVhost", {
