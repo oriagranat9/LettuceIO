@@ -15,7 +15,7 @@
   "main": "background.js",
   "dependencies": {
     "@alfsnd/vue-bootstrap-select": "^0.4.4",
-    "axios": "^0.21.1",
+    "axios": "^0.28.0",
     "bootstrap": "^4.5.2",
     "bootstrap-vue": "^2.17.3",
     "core-js": "^3.6.5",
